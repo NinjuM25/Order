@@ -112,13 +112,7 @@
 
             if (name && order && quantity > 0) {
                 let orders = JSON.parse(localStorage.getItem("orders")) || [];
-                let existingOrder = orders.find(o => o.name === name && o.order === order);
-
-                if (existingOrder) {
-                    existingOrder.quantity += quantity;
-                } else {
-                    orders.push({ name, category, order, quantity, status: "Pending" });
-                }
+                orders.push({ name, category, order, quantity, status: "Pending" });
 
                 localStorage.setItem("orders", JSON.stringify(orders));
                 renderOrders();
