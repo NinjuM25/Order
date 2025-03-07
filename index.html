@@ -5,11 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Management</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .container { width: 50%; margin: auto; text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid black; padding: 10px; }
-        button { margin-top: 10px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            background-color: #f4f4f4; 
+        }
+        .container {
+            width: 90%; 
+            max-width: 600px; 
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input, select, button {
+            width: 100%; 
+            padding: 10px; 
+            margin: 5px 0; 
+            font-size: 16px;
+            border: 1px solid #ccc; 
+            border-radius: 5px;
+        }
+        button {
+            background: #28a745; 
+            color: white; 
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { background: #218838; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            background: white;
+        }
+        th, td { 
+            border: 1px solid black; 
+            padding: 10px; 
+            font-size: 14px;
+        }
+        .table-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        .summary-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: left;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            th, td {
+                font-size: 12px;
+                padding: 5px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -25,28 +88,32 @@
         <input type="number" id="quantity" placeholder="Quantity" min="1" value="1">
         <button onclick="addOrder()">Add Order</button>
         <button onclick="viewOrderSummary()">Order List</button>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Order</th>
-                    <th>Quantity</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="orderList"></tbody>
-        </table>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Order</th>
+                        <th>Quantity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="orderList"></tbody>
+            </table>
+        </div>
     </div>
 
     <div id="summaryContainer" class="container" style="display:none;">
         <h2>Order Summary</h2>
-        <p><strong>Silog Menu - Total Quantity:</strong> <span id="silogTotal">0</span></p>
-        <p><strong>Frozen Goods - Total Quantity:</strong> <span id="frozenTotal">0</span></p>
-        <p><strong>Desert - Total Quantity:</strong> <span id="desertTotal">0</span></p>
-        <h3>Individual Item Summary</h3>
-        <ul id="itemSummary"></ul>
+        <div class="summary-box">
+            <p><strong>Silog Menu - Total Quantity:</strong> <span id="silogTotal">0</span></p>
+            <p><strong>Frozen Goods - Total Quantity:</strong> <span id="frozenTotal">0</span></p>
+            <p><strong>Desert - Total Quantity:</strong> <span id="desertTotal">0</span></p>
+            <h3>Individual Item Summary</h3>
+            <ul id="itemSummary"></ul>
+        </div>
         <button onclick="closeSummary()">Close Summary</button>
     </div>
 
@@ -61,7 +128,6 @@
             let category = document.getElementById("menuCategory").value;
             let orderSelect = document.getElementById("orderItem");
             orderSelect.innerHTML = "";
-            
             menuItems[category].forEach(item => {
                 let option = document.createElement("option");
                 option.value = item;
@@ -75,17 +141,14 @@
             let category = document.getElementById("menuCategory").value;
             let order = document.getElementById("orderItem").value;
             let quantity = parseInt(document.getElementById("quantity").value);
-            
             if (name && order && quantity > 0) {
                 let orders = JSON.parse(localStorage.getItem("orders")) || [];
                 let existingOrder = orders.find(o => o.name === name && o.order === order);
-
                 if (existingOrder) {
                     existingOrder.quantity += quantity;
                 } else {
                     orders.push({ name, category, order, quantity, status: "Pending" });
                 }
-
                 localStorage.setItem("orders", JSON.stringify(orders));
                 renderOrders();
                 document.getElementById("customerName").value = "";
@@ -129,14 +192,9 @@
         function confirmAction(index, action) {
             let password = prompt("Enter password:");
             if (password === "56672") {
-                if (action === "remove") {
-                    removeOrder(index);
-                } else if (action === "paid") {
-                    markAsPaid(index);
-                }
-            } else {
-                alert("Incorrect password!");
-            }
+                if (action === "remove") removeOrder(index);
+                if (action === "paid") markAsPaid(index);
+            } else alert("Incorrect password!");
         }
 
         function removeOrder(index) {
@@ -154,28 +212,6 @@
         }
 
         function viewOrderSummary() {
-            let orders = JSON.parse(localStorage.getItem("orders")) || [];
-            let silogTotal = 0, frozenTotal = 0, desertTotal = 0;
-            let itemSummary = {};
-            
-            orders.forEach(order => {
-                if (order.category === "Silog Menu") silogTotal += order.quantity;
-                if (order.category === "Frozen Goods") frozenTotal += order.quantity;
-                if (order.category === "Desert") desertTotal += order.quantity;
-                itemSummary[order.order] = (itemSummary[order.order] || 0) + order.quantity;
-            });
-
-            document.getElementById("silogTotal").textContent = silogTotal;
-            document.getElementById("frozenTotal").textContent = frozenTotal;
-            document.getElementById("desertTotal").textContent = desertTotal;
-
-            let itemSummaryList = document.getElementById("itemSummary");
-            itemSummaryList.innerHTML = "";
-            for (let item in itemSummary) {
-                let li = document.createElement("li");
-                li.textContent = `${item}: ${itemSummary[item]}`;
-                itemSummaryList.appendChild(li);
-            }
             document.getElementById("summaryContainer").style.display = "block";
         }
 
