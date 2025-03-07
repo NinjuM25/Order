@@ -44,14 +44,15 @@
         <input type="text" id="customerName" placeholder="Enter name"><br><br>
 
         <label>Menu Category:</label>
-        <select id="menuCategory">
+        <select id="menuCategory" onchange="updateOrderItems()">
             <option value="Silog Menu">Silog Menu</option>
             <option value="Frozen Goods">Frozen Goods</option>
             <option value="Desert">Desert</option>
         </select><br><br>
 
         <label>Order Item:</label>
-        <input type="text" id="orderItem" placeholder="Enter item"><br><br>
+        <select id="orderItem"></select>
+        <input type="text" id="customOrderItem" class="hidden" placeholder="Enter item"><br><br>
 
         <label>Quantity:</label>
         <input type="number" id="quantity" value="1" min="1"><br><br>
@@ -75,10 +76,38 @@
     </div>
 
     <script>
+        const menuItems = {
+            "Silog Menu": ["Tapsilog", "Longsilog", "Tocilog", "Hotsilog"],
+            "Frozen Goods": ["Chicken Nuggets", "Fish Fillet", "Hotdog", "Siomai"]
+        };
+
+        function updateOrderItems() {
+            let category = document.getElementById("menuCategory").value;
+            let orderSelect = document.getElementById("orderItem");
+            let customOrderInput = document.getElementById("customOrderItem");
+
+            orderSelect.innerHTML = ""; 
+
+            if (category === "Desert") {
+                orderSelect.classList.add("hidden");
+                customOrderInput.classList.remove("hidden");
+            } else {
+                orderSelect.classList.remove("hidden");
+                customOrderInput.classList.add("hidden");
+
+                menuItems[category].forEach(item => {
+                    let option = document.createElement("option");
+                    option.value = item;
+                    option.textContent = item;
+                    orderSelect.appendChild(option);
+                });
+            }
+        }
+
         function addOrder() {
             let name = document.getElementById("customerName").value.trim();
             let category = document.getElementById("menuCategory").value;
-            let order = document.getElementById("orderItem").value;
+            let order = category === "Desert" ? document.getElementById("customOrderItem").value : document.getElementById("orderItem").value;
             let quantity = parseInt(document.getElementById("quantity").value);
 
             if (name && order && quantity > 0) {
@@ -130,7 +159,6 @@
 
         function viewOrderSummary() {
             let orders = JSON.parse(localStorage.getItem("orders")) || [];
-            console.log("Orders Data:", orders); // DEBUGGING CHECK
 
             let silogTotal = 0, frozenTotal = 0, desertTotal = 0;
             let itemSummary = {};
@@ -167,6 +195,7 @@
         }
 
         window.onload = function () {
+            updateOrderItems();
             renderOrders();
         };
     </script>
