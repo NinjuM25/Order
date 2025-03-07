@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 50%; margin: auto; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 10px; }
+        button { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Order Management</h2>
+        <input type="text" id="customerName" placeholder="Enter Name">
+        <select id="menuCategory" onchange="updateOrderItems()">
+            <option value="Silog Menu">Silog Menu</option>
+            <option value="Frozen Goods">Frozen Goods</option>
+            <option value="Desert">Desert</option>
+        </select>
+        <select id="orderItem"></select>
+        <input type="number" id="quantity" placeholder="Quantity" min="1" value="1">
+        <button onclick="addOrder()">Add Order</button>
+        <button onclick="viewOrderSummary()">Order List</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Order</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="orderList"></tbody>
+        </table>
+    </div>
+
+    <div id="summaryContainer" class="container" style="display:none;">
+        <h2>Order Summary</h2>
+        <p><strong>Silog Menu - Total Quantity:</strong> <span id="silogTotal">0</span></p>
+        <p><strong>Frozen Goods - Total Quantity:</strong> <span id="frozenTotal">0</span></p>
+        <p><strong>Desert - Total Quantity:</strong> <span id="desertTotal">0</span></p>
+        <h3>Individual Item Summary</h3>
+        <ul id="itemSummary"></ul>
+        <button onclick="closeSummary()">Close Summary</button>
+    </div>
+
+    <script>
+        const menuItems = {
+            "Silog Menu": ["Spat-Silog", "Hat-Silog", "Long-Silog", "Burger Steak"],
+            "Frozen Goods": ["Garlic Longanisa", "Sweet Longanisa", "Skinless Longanisa", "Embotido", "Marinated Liempo", "Chicharon Bulaklak"],
+            "Desert": ["Choco moist"]
+        };
+
+        function updateOrderItems() {
+            let category = document.getElementById("menuCategory").value;
+            let orderSelect = document.getElementById("orderItem");
+            orderSelect.innerHTML = "";
+            
+            menuItems[category].forEach(item => {
+                let option = document.createElement("option");
+                option.value = item;
+                option.textContent = item;
+                orderSelect.appendChild(option);
+            });
+        }
+
+        function addOrder() {
+            let name = document.getElementById("customerName").value.trim();
+            let category = document.getElementById("menuCategory").value;
+            let order = document.getElementById("orderItem").value;
+            let quantity = parseInt(document.getElementById("quantity").value);
+            
+            if (name && order && quantity > 0) {
+                let orders = JSON.parse(localStorage.getItem("orders")) || [];
+                let existingOrder = orders.find(o => o.name === name && o.order === order);
+
+                if (existingOrder) {
+                    existingOrder.quantity += quantity;
+                } else {
+                    orders.push({ name, category, order, quantity, status: "Pending" });
+                }
+
+                localStorage.setItem("orders", JSON.stringify(orders));
+                renderOrders();
+                document.getElementById("customerName").value = "";
+                document.getElementById("quantity").value = "1";
+            } else {
+                alert("Please enter a name, select an order item, and specify a valid quantity.");
+            }
+        }
+
+        function renderOrders() {
+            let table = document.getElementById("orderList");
+            table.innerHTML = "";
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            orders.forEach((order, index) => {
+                let row = table.insertRow();
+                row.innerHTML = `
+                    <td>${order.name}</td>
+                    <td>${order.category}</td>
+                    <td>${order.order}</td>
+                    <td>${order.quantity}</td>
+                    <td>
+                        <button onclick="editQuantity(${index})">Edit</button>
+                        <button onclick="confirmAction(${index}, 'remove')">Remove</button>
+                        <button onclick="confirmAction(${index}, 'paid')">Paid</button>
+                    </td>`;
+            });
+        }
+
+        function editQuantity(index) {
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            let newQuantity = prompt("Enter new quantity:", orders[index].quantity);
+            if (newQuantity && !isNaN(newQuantity) && parseInt(newQuantity) > 0) {
+                orders[index].quantity = parseInt(newQuantity);
+                localStorage.setItem("orders", JSON.stringify(orders));
+                renderOrders();
+            } else {
+                alert("Invalid quantity!");
+            }
+        }
+
+        function confirmAction(index, action) {
+            let password = prompt("Enter password:");
+            if (password === "56672") {
+                if (action === "remove") {
+                    removeOrder(index);
+                } else if (action === "paid") {
+                    markAsPaid(index);
+                }
+            } else {
+                alert("Incorrect password!");
+            }
+        }
+
+        function removeOrder(index) {
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            orders.splice(index, 1);
+            localStorage.setItem("orders", JSON.stringify(orders));
+            renderOrders();
+        }
+
+        function markAsPaid(index) {
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            orders[index].status = "Paid";
+            localStorage.setItem("orders", JSON.stringify(orders));
+            renderOrders();
+        }
+
+        function viewOrderSummary() {
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            let silogTotal = 0, frozenTotal = 0, desertTotal = 0;
+            let itemSummary = {};
+            
+            orders.forEach(order => {
+                if (order.category === "Silog Menu") silogTotal += order.quantity;
+                if (order.category === "Frozen Goods") frozenTotal += order.quantity;
+                if (order.category === "Desert") desertTotal += order.quantity;
+                itemSummary[order.order] = (itemSummary[order.order] || 0) + order.quantity;
+            });
+
+            document.getElementById("silogTotal").textContent = silogTotal;
+            document.getElementById("frozenTotal").textContent = frozenTotal;
+            document.getElementById("desertTotal").textContent = desertTotal;
+
+            let itemSummaryList = document.getElementById("itemSummary");
+            itemSummaryList.innerHTML = "";
+            for (let item in itemSummary) {
+                let li = document.createElement("li");
+                li.textContent = `${item}: ${itemSummary[item]}`;
+                itemSummaryList.appendChild(li);
+            }
+            document.getElementById("summaryContainer").style.display = "block";
+        }
+
+        function closeSummary() {
+            document.getElementById("summaryContainer").style.display = "none";
+        }
+
+        updateOrderItems();
+        renderOrders();
+    </script>
+</body>
+</html>
