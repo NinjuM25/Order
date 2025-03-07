@@ -44,15 +44,13 @@
         <input type="text" id="customerName" placeholder="Enter name"><br><br>
 
         <label>Menu Category:</label>
-        <select id="menuCategory" onchange="updateOrderItems()">
+        <select id="menuCategory" onchange="updateOrderOptions()">
             <option value="Silog Menu">Silog Menu</option>
             <option value="Frozen Goods">Frozen Goods</option>
             <option value="Desert">Desert</option>
         </select><br><br>
 
-        <label>Order Item:</label>
-        <select id="orderItem"></select>
-        <input type="text" id="customOrderItem" class="hidden" placeholder="Enter item"><br><br>
+        <div id="orderOptions"></div>
 
         <label>Quantity:</label>
         <input type="number" id="quantity" value="1" min="1"><br><br>
@@ -77,38 +75,40 @@
 
     <script>
         const menuItems = {
-            "Silog Menu": ["Tapsilog", "Longsilog", "Tocilog", "Hotsilog"],
-            "Frozen Goods": ["Chicken Nuggets", "Fish Fillet", "Hotdog", "Siomai"]
+            "Silog Menu": ["Spam-Silog", "Hat-Silog", "Long-Silog", "Bueger Steak"],
+            "Frozen Goods": ["Garlic Longanisa", "Sweet Longanisa", "Skinless Longanisa", "Embotido", "Chicharon Bulaklak", "Marinated Liempo"]
         };
 
-        function updateOrderItems() {
+        function updateOrderOptions() {
             let category = document.getElementById("menuCategory").value;
-            let orderSelect = document.getElementById("orderItem");
-            let customOrderInput = document.getElementById("customOrderItem");
-
-            orderSelect.innerHTML = ""; 
+            let orderOptionsDiv = document.getElementById("orderOptions");
+            orderOptionsDiv.innerHTML = "";
 
             if (category === "Desert") {
-                orderSelect.classList.add("hidden");
-                customOrderInput.classList.remove("hidden");
+                orderOptionsDiv.innerHTML = `<input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">`;
             } else {
-                orderSelect.classList.remove("hidden");
-                customOrderInput.classList.add("hidden");
-
+                let optionsHtml = "";
                 menuItems[category].forEach(item => {
-                    let option = document.createElement("option");
-                    option.value = item;
-                    option.textContent = item;
-                    orderSelect.appendChild(option);
+                    optionsHtml += `<label><input type="radio" name="orderItem" value="${item}"> ${item}</label><br>`;
                 });
+                orderOptionsDiv.innerHTML = optionsHtml;
             }
         }
 
         function addOrder() {
             let name = document.getElementById("customerName").value.trim();
             let category = document.getElementById("menuCategory").value;
-            let order = category === "Desert" ? document.getElementById("customOrderItem").value : document.getElementById("orderItem").value;
             let quantity = parseInt(document.getElementById("quantity").value);
+            let order = "";
+
+            if (category === "Desert") {
+                order = document.getElementById("customOrderItem").value.trim();
+            } else {
+                let selectedRadio = document.querySelector('input[name="orderItem"]:checked');
+                if (selectedRadio) {
+                    order = selectedRadio.value;
+                }
+            }
 
             if (name && order && quantity > 0) {
                 let orders = JSON.parse(localStorage.getItem("orders")) || [];
@@ -189,7 +189,7 @@
         }
 
         window.onload = function () {
-            updateOrderItems();
+            updateOrderOptions();
             renderOrders();
         };
     </script>
