@@ -43,11 +43,12 @@
         }
         .radio-container {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;  /* Align radio buttons in a column */
+            align-items: flex-start;  /* Align them to the left */
+            margin-bottom: 10px;  /* Add some spacing at the bottom */
         }
         .radio-container label {
-            margin: 5px 15px;
+            margin: 5px 0;  /* Space out the radio buttons vertically */
             font-size: 16px;
         }
         select {
