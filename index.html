@@ -136,10 +136,10 @@
             let orderOptionsDiv = document.getElementById("orderOptions");
             orderOptionsDiv.innerHTML = "";
 
+            let optionsHtml = "<div class='radio-container'>";
             if (category === "Desert") {
                 orderOptionsDiv.innerHTML = `<input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">`;
             } else {
-                let optionsHtml = "<div class='radio-container'>";
                 menuItems[category].forEach(item => {
                     optionsHtml += `<label><input type="radio" name="orderItem" value="${item}"> ${item}</label>`;
                 });
