@@ -3,165 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Selection</title>
+    <title>Order Management</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
             background-color: #f4f4f4;
+            text-align: center;
         }
         .container {
-            max-width: 500px;
+            width: 90%;
+            max-width: 400px;
             margin: auto;
             background: white;
             padding: 20px;
+            box-shadow: 0px 0px 10px #aaa;
             border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-        h2, h3 {
-            text-align: center;
-        }
-        select, button, input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .hidden {
+            display: none;
         }
         button {
-            background-color: #28a745;
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            background: #28a745;
             color: white;
             cursor: pointer;
-            font-size: 16px;
+            border-radius: 5px;
+            width: 100%;
         }
         button:hover {
-            background-color: #218838;
+            background: #218838;
+        }
+        .input-text {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
         }
         .radio-container {
-            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 10px;
         }
         .radio-container label {
-            display: block;
-            padding: 5px;
-            background: #ddd;
-            border-radius: 5px;
-            margin-top: 5px;
-            cursor: pointer;
+            margin: 5px 0;
+            font-size: 16px;
         }
-        .radio-container input {
-            margin-right: 10px;
+        select {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        #orderList {
+            text-align: center;
+            list-style-position: inside;
         }
-        ul li {
-            background: #f8f9fa;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .remove-btn {
-            background: red;
-            color: white;
-            border: none;
-            padding: 5px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        .remove-btn:hover {
-            background: darkred;
+        #itemSummary {
+            text-align: left;
+            list-style-position: inside;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Food Order Menu</h2>
-        
-        <!-- Dropdown Selection -->
-        <label for="menuCategory">Select Menu Category:</label>
+        <h2>Order Management</h2>
+
+        <label>Customer Name:</label>
+        <input type="text" id="customerName" class="input-text" placeholder="Enter name"><br>
+
+        <label>Menu Category:</label>
         <select id="menuCategory" onchange="updateOrderOptions()">
             <option value="Silog Menu">Silog Menu</option>
             <option value="Frozen Goods">Frozen Goods</option>
-            <option value="Dessert">Dessert</option>
-        </select>
+            <option value="Desert">Desert</option>
+        </select><br>
 
-        <!-- Dynamic Order Options -->
         <div id="orderOptions"></div>
 
-        <!-- Submit Button -->
-        <button onclick="submitOrder()">Submit Order</button>
+        <label>Quantity:</label>
+        <input type="number" id="quantity" value="1" min="1"><br><br>
 
-        <!-- Order Summary -->
-        <h3>Order Summary:</h3>
+        <button onclick="addOrder()">Add Order</button>
+        <button onclick="viewOrderSummary()">View Order Summary</button>
+        <button onclick="clearOrders()">Clear Orders</button>
+
+        <h3>Current Orders</h3>
         <ul id="orderList"></ul>
+
+        <div id="summaryContainer" class="hidden">
+            <h3>Order Summary</h3>
+            <p>Silog Total: <span id="silogTotal">0</span></p>
+            <p>Frozen Goods Total: <span id="frozenTotal">0</span></p>
+            <p>Desert Total: <span id="desertTotal">0</span></p>
+
+            <h4>Item Breakdown:</h4>
+            <ul id="itemSummary"></ul>
+        </div>
     </div>
 
     <script>
-        // Menu items list
         const menuItems = {
-            "Silog Menu": ["Tapsilog", "Longsilog", "Bangsilog"],
-            "Frozen Goods": ["Siomai", "Chicken Nuggets", "Fish Balls"]
+            "Silog Menu": ["Spam-Silog", "Hat-Silog", "Long-Silog", "Burger Steak"],
+            "Frozen Goods": ["Garlic Longanisa", "Sweet Longanisa", "Skinless Longanisa", "Embotido", "Chicharon Bulaklak", "Marinated Liempo", "Burger Patty", "Tocino"],
+            "Desert": ["Choco Moist"]
         };
 
         function updateOrderOptions() {
-            const category = document.getElementById("menuCategory").value;
-            const orderOptionsDiv = document.getElementById("orderOptions");
-            orderOptionsDiv.innerHTML = ""; // Clear previous options
+            let category = document.getElementById("menuCategory").value;
+            let orderOptionsDiv = document.getElementById("orderOptions");
+            orderOptionsDiv.innerHTML = "";
 
-            if (menuItems[category]) {
-                // Create radio buttons
-                let optionsHtml = `<div class="radio-container">`;
-                menuItems[category].forEach(item => {
-                    optionsHtml += `
-                        <label>
-                            <input type="radio" name="orderItem" value="${item}"> ${item}
-                        </label>
-                    `;
-                });
-                optionsHtml += `</div>`;
-                orderOptionsDiv.innerHTML = optionsHtml;
-            } else {
-                // Show input field for custom Dessert
-                orderOptionsDiv.innerHTML = `
-                    <label>Enter Your Dessert:</label>
-                    <input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">
-                `;
-            }
+            let optionsHtml = "<div class='radio-container'>";
+            menuItems[category].forEach(item => {
+                optionsHtml += `<label><input type="radio" name="orderItem" value="${item}"> ${item}</label>`;
+            });
+            optionsHtml += "</div>";
+            orderOptionsDiv.innerHTML = optionsHtml;
         }
 
-        function submitOrder() {
-            const category = document.getElementById("menuCategory").value;
-            let selectedOrder;
-
-            if (category === "Dessert") {
-                selectedOrder = document.getElementById("customOrderItem").value.trim();
-            } else {
-                const selectedRadio = document.querySelector('input[name="orderItem"]:checked');
-                selectedOrder = selectedRadio ? selectedRadio.value : null;
-            }
-
-            if (selectedOrder) {
-                const orderList = document.getElementById("orderList");
-                const listItem = document.createElement("li");
-                listItem.innerHTML = `${selectedOrder} <button class="remove-btn" onclick="removeOrder(this)">X</button>`;
-                orderList.appendChild(listItem);
-            } else {
-                alert("Please select or enter an order.");
-            }
-        }
-
-        function removeOrder(button) {
-            const listItem = button.parentElement;
-            listItem.remove();
-        }
-
-        // Initialize order options on load
         window.onload = function () {
-            document.getElementById("menuCategory").addEventListener("change", updateOrderOptions);
             updateOrderOptions();
         };
     </script>
