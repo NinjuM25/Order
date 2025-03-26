@@ -3,264 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Management</title>
+    <title>Menu Selection</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 20px;
             background-color: #f4f4f4;
-            text-align: center;
         }
         .container {
-            width: 90%;
-            max-width: 400px;
+            max-width: 500px;
             margin: auto;
             background: white;
             padding: 20px;
-            box-shadow: 0px 0px 10px #aaa;
             border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-        .hidden {
-            display: none;
+        h2, h3 {
+            text-align: center;
+        }
+        select, button, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
         button {
-            padding: 10px 15px;
-            margin: 5px;
-            border: none;
-            background: #28a745;
+            background-color: #28a745;
             color: white;
             cursor: pointer;
-            border-radius: 5px;
-            width: 100%;
-        }
-        button:hover {
-            background: #218838;
-        }
-        .input-text {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .radio-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        .radio-container label {
-            margin: 5px 0;
             font-size: 16px;
         }
-        select {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            margin-bottom: 10px;
+        button:hover {
+            background-color: #218838;
         }
-        #orderList {
-            text-align: center;
-            list-style-position: inside;
+        .radio-container {
+            margin-top: 15px;
         }
-        #itemSummary {
-            text-align: left;
-            list-style-position: inside;
+        .radio-container label {
+            display: block;
+            padding: 5px;
+            background: #ddd;
+            border-radius: 5px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+        .radio-container input {
+            margin-right: 10px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .remove-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .remove-btn:hover {
+            background: darkred;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Order Management</h2>
-
-        <label>Customer Name:</label>
-        <input type="text" id="customerName" class="input-text" placeholder="Enter name"><br>
-
-        <label>Menu Category:</label>
+        <h2>Food Order Menu</h2>
+        
+        <!-- Dropdown Selection -->
+        <label for="menuCategory">Select Menu Category:</label>
         <select id="menuCategory" onchange="updateOrderOptions()">
             <option value="Silog Menu">Silog Menu</option>
             <option value="Frozen Goods">Frozen Goods</option>
-            <option value="Desert">Desert</option>
-        </select><br>
+            <option value="Dessert">Dessert</option>
+        </select>
 
+        <!-- Dynamic Order Options -->
         <div id="orderOptions"></div>
 
-        <label>Quantity:</label>
-        <input type="number" id="quantity" value="1" min="1"><br><br>
+        <!-- Submit Button -->
+        <button onclick="submitOrder()">Submit Order</button>
 
-        <button onclick="addOrder()">Add Order</button>
-        <button onclick="viewOrderSummary()">View Order Summary</button>
-        <button onclick="clearOrders()">Clear Orders</button>
-
-        <h3>Current Orders</h3>
+        <!-- Order Summary -->
+        <h3>Order Summary:</h3>
         <ul id="orderList"></ul>
-
-        <div id="summaryContainer" class="hidden">
-            <h3>Order Summary</h3>
-            <p>Silog Total: <span id="silogTotal">0</span></p>
-            <p>Frozen Goods Total: <span id="frozenTotal">0</span></p>
-            <p>Desert Total: <span id="desertTotal">0</span></p>
-
-            <h4>Item Breakdown:</h4>
-            <ul id="itemSummary"></ul>
-        </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-    
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD1uqjXN_82NgZZc8YP82iKoEbdOBdanv4",
-            authDomain: "order-management-87875.firebaseapp.com",
-            projectId: "order-management-87875",
-            storageBucket: "order-management-87875.firebasestorage.app",
-            messagingSenderId: "879210415165",
-            appId: "1:879210415165:web:b1d6808f6d790d2bbc5654",
-            measurementId: "G-FPLG5R3MS6"
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database(app);
-
+        // Menu items list
         const menuItems = {
-            "Silog Menu": ["Spam-Silog", "Hat-Silog", "Long-Silog", "Burger Steak"],
-            "Frozen Goods": ["Garlic Longanisa", "Sweet Longanisa", "Skinless Longanisa", "Embotido", "Chicharon Bulaklak", "Marinated Liempo", "Burger Patty", "Tocino"],
-            "Desert": ["Choco Moist"]
+            "Silog Menu": ["Tapsilog", "Longsilog", "Bangsilog"],
+            "Frozen Goods": ["Siomai", "Chicken Nuggets", "Fish Balls"]
         };
 
         function updateOrderOptions() {
-            let category = document.getElementById("menuCategory").value;
-            let orderOptionsDiv = document.getElementById("orderOptions");
-            orderOptionsDiv.innerHTML = "";
+            const category = document.getElementById("menuCategory").value;
+            const orderOptionsDiv = document.getElementById("orderOptions");
+            orderOptionsDiv.innerHTML = ""; // Clear previous options
 
-            if (category === "Desert") {
-                // For Desert, use a text input to enter custom dessert
-                orderOptionsDiv.innerHTML = `<label>Enter Dessert:</label>
-                                             <input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">`;
-            } else {
-                // For Silog Menu and Frozen Goods, show the list of items as radio buttons
-                let optionsHtml = "<div class='radio-container'>";
+            if (menuItems[category]) {
+                // Create radio buttons
+                let optionsHtml = `<div class="radio-container">`;
                 menuItems[category].forEach(item => {
-                    optionsHtml += `<label><input type="radio" name="orderItem" value="${item}"> ${item}</label>`;
+                    optionsHtml += `
+                        <label>
+                            <input type="radio" name="orderItem" value="${item}"> ${item}
+                        </label>
+                    `;
                 });
-                optionsHtml += "</div>";
+                optionsHtml += `</div>`;
                 orderOptionsDiv.innerHTML = optionsHtml;
-            }
-        }
-
-        function addOrder() {
-            let name = document.getElementById("customerName").value.trim();
-            let category = document.getElementById("menuCategory").value;
-            let quantity = parseInt(document.getElementById("quantity").value);
-            let order = "";
-
-            if (category === "Desert") {
-                order = document.getElementById("customOrderItem").value.trim();
             } else {
-                let selectedRadio = document.querySelector('input[name="orderItem"]:checked');
-                if (selectedRadio) {
-                    order = selectedRadio.value;
-                }
+                // Show input field for custom Dessert
+                orderOptionsDiv.innerHTML = `
+                    <label>Enter Your Dessert:</label>
+                    <input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">
+                `;
             }
+        }
 
-            if (name && order && quantity > 0) {
-                let ordersRef = database.ref("orders");
-                let newOrderRef = ordersRef.push();
-                newOrderRef.set({
-                    name,
-                    category,
-                    order,
-                    quantity,
-                    status: "Pending"
-                });
+        function submitOrder() {
+            const category = document.getElementById("menuCategory").value;
+            let selectedOrder;
 
-                renderOrders();
-                document.getElementById("customerName").value = "";
-                document.getElementById("quantity").value = "1";
+            if (category === "Dessert") {
+                selectedOrder = document.getElementById("customOrderItem").value.trim();
             } else {
-                alert("Please enter a name, select an order item, and specify a valid quantity.");
+                const selectedRadio = document.querySelector('input[name="orderItem"]:checked');
+                selectedOrder = selectedRadio ? selectedRadio.value : null;
+            }
+
+            if (selectedOrder) {
+                const orderList = document.getElementById("orderList");
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `${selectedOrder} <button class="remove-btn" onclick="removeOrder(this)">X</button>`;
+                orderList.appendChild(listItem);
+            } else {
+                alert("Please select or enter an order.");
             }
         }
 
-        function renderOrders() {
-            let ordersRef = database.ref("orders");
-            ordersRef.once("value", (snapshot) => {
-                let orders = snapshot.val() || [];
-                let orderList = document.getElementById("orderList");
-                orderList.innerHTML = "";
-
-                for (let key in orders) {
-                    let order = orders[key];
-                    let li = document.createElement("li");
-                    li.textContent = `${order.name} - ${order.order} x${order.quantity} [${order.status}]`;
-
-                    let deleteBtn = document.createElement("button");
-                    deleteBtn.textContent = "❌";
-                    deleteBtn.style.background = "red";
-                    deleteBtn.onclick = function () {
-                        deleteOrder(key);
-                    };
-
-                    li.appendChild(deleteBtn);
-                    orderList.appendChild(li);
-                }
-            });
+        function removeOrder(button) {
+            const listItem = button.parentElement;
+            listItem.remove();
         }
 
-        function deleteOrder(orderId) {
-            let ordersRef = database.ref("orders");
-            ordersRef.child(orderId).remove();
-            renderOrders();
-        }
-
-        function viewOrderSummary() {
-            let ordersRef = database.ref("orders");
-            ordersRef.once("value", (snapshot) => {
-                let orders = snapshot.val() || [];
-
-                let silogTotal = 0, frozenTotal = 0, desertTotal = 0;
-                let itemSummary = {};
-
-                for (let key in orders) {
-                    let order = orders[key];
-                    if (order.category === "Silog Menu") silogTotal += order.quantity;
-                    if (order.category === "Frozen Goods") frozenTotal += order.quantity;
-                    if (order.category === "Desert") desertTotal += order.quantity;
-
-                    itemSummary[order.order] = (itemSummary[order.order] || 0) + order.quantity;
-                }
-
-                document.getElementById("silogTotal").textContent = silogTotal;
-                document.getElementById("frozenTotal").textContent = frozenTotal;
-                document.getElementById("desertTotal").textContent = desertTotal;
-
-                let itemSummaryList = document.getElementById("itemSummary");
-                itemSummaryList.innerHTML = "";
-                for (let item in itemSummary) {
-                    let li = document.createElement("li");
-                    li.textContent = `${item}: ${itemSummary[item]}`;
-                    itemSummaryList.appendChild(li);
-                }
-
-                document.getElementById("summaryContainer").classList.remove("hidden");
-            });
-        }
-
-        function clearOrders() {
-            if (confirm("Are you sure you want to clear all orders?")) {
-                let ordersRef = database.ref("orders");
-                ordersRef.remove();
-                renderOrders();
-                document.getElementById("summaryContainer").classList.add("hidden");
-            }
-        }
-
+        // Initialize order options on load
         window.onload = function () {
+            document.getElementById("menuCategory").addEventListener("change", updateOrderOptions);
             updateOrderOptions();
-            renderOrders();
         };
     </script>
 
