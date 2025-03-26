@@ -136,10 +136,13 @@
             let orderOptionsDiv = document.getElementById("orderOptions");
             orderOptionsDiv.innerHTML = "";
 
-            let optionsHtml = "<div class='radio-container'>";
             if (category === "Desert") {
-                orderOptionsDiv.innerHTML = `<input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">`;
+                // For Desert, use a text input to enter custom dessert
+                orderOptionsDiv.innerHTML = `<label>Enter Dessert:</label>
+                                             <input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">`;
             } else {
+                // For Silog Menu and Frozen Goods, show the list of items as radio buttons
+                let optionsHtml = "<div class='radio-container'>";
                 menuItems[category].forEach(item => {
                     optionsHtml += `<label><input type="radio" name="orderItem" value="${item}"> ${item}</label>`;
                 });
