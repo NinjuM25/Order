@@ -43,12 +43,12 @@
         }
         .radio-container {
             display: flex;
-            flex-direction: column;  /* Align radio buttons in a column */
-            align-items: flex-start;  /* Align them to the left */
-            margin-bottom: 10px;  /* Add some spacing at the bottom */
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 10px;
         }
         .radio-container label {
-            margin: 5px 0;  /* Space out the radio buttons vertically */
+            margin: 5px 0;
             font-size: 16px;
         }
         select {
@@ -56,6 +56,14 @@
             padding: 8px;
             font-size: 14px;
             margin-bottom: 10px;
+        }
+        #orderList {
+            text-align: center;
+            list-style-position: inside;
+        }
+        #itemSummary {
+            text-align: left;
+            list-style-position: inside;
         }
     </style>
 </head>
@@ -99,7 +107,7 @@
 
     <script>
         const menuItems = {
-            "Silog Menu": ["Spam-Silog", "Hat-Silog", "Long-Silog", "Bueger Steak"],
+            "Silog Menu": ["Spam-Silog", "Hat-Silog", "Long-Silog", "Burger Steak"],
             "Frozen Goods": ["Garlic Longanisa", "Sweet Longanisa", "Skinless Longanisa", "Embotido", "Chicharon Bulaklak", "Marinated Liempo", "Burger Patty", "Tocino"],
             "Desert": ["Choco Moist"]
         };
