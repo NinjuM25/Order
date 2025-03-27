@@ -1,268 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Management</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-        .container {
-            width: 90%;
-            max-width: 400px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px #aaa;
-            border-radius: 10px;
-        }
-        .hidden {
-            display: none;
-        }
-        button {
-            padding: 10px 15px;
-            margin: 5px;
-            border: none;
-            background: #28a745;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            width: 100%;
-        }
-        button:hover {
-            background: #218838;
-        }
-        .input-text {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .radio-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        .radio-container label {
-            margin: 5px 0;
-            font-size: 16px;
-        }
-        select {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        #orderList {
-            text-align: center;
-            list-style-position: inside;
-        }
-        #itemSummary {
-            text-align: left;
-            list-style-position: inside;
-        }
-    </style>
-</head>
-<body>
+import React, { useState, useEffect } from "react";
+import firebase from "firebase/app";
+import "firebase/database";
 
-    <div class="container">
-        <h2>Order Management</h2>
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyD1uqjXN_82NgZZc8YP82iKoEbdOBdanv4",
+    authDomain: "order-management-87875.firebaseapp.com",
+    projectId: "order-management-87875",
+    storageBucket: "order-management-87875.firebasestorage.app",
+    messagingSenderId: "879210415165",
+    appId: "1:879210415165:web:b1d6808f6d790d2bbc5654",
+    measurementId: "G-FPLG5R3MS6"
+};
 
-        <label>Customer Name:</label>
-        <input type="text" id="customerName" class="input-text" placeholder="Enter name"><br>
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const database = firebase.database();
 
-        <label>Menu Category:</label>
-        <select id="menuCategory" onchange="updateOrderOptions()">
-            <option value="Silog Menu">Silog Menu</option>
-            <option value="Frozen Goods">Frozen Goods</option>
-            <option value="Desert">Desert</option>
-        </select><br>
+const MenuComponent = () => {
+  const [selectedMenu, setSelectedMenu] = useState("");
+  const [selectedOption, setSelectedOption] = useState("");
+  const [menus, setMenus] = useState({});
 
-        <div id="orderOptions"></div>
+  useEffect(() => {
+    const fetchMenus = async () => {
+      const snapshot = await database.ref("menus").once("value");
+      if (snapshot.exists()) {
+        setMenus(snapshot.val());
+      } else {
+        setMenus({
+          "MENU 1": ["OPTION 1", "OPTION 2", "OPTION 3"],
+          "MENU 2": ["OPTION 4", "OPTION 5", "OPTION 6"],
+          "MENU 3": ["OPTION 7", "OPTION 8", "OPTION 9"],
+        });
+      }
+    };
+    fetchMenus();
+  }, []);
 
-        <label>Quantity:</label>
-        <input type="number" id="quantity" value="1" min="1"><br><br>
+  return (
+    <div className="p-4 bg-gray-900 min-h-screen text-white">
+      <h2 className="text-2xl mb-4">Select a Menu</h2>
+      <div className="mb-4">
+        {Object.keys(menus).map((menu) => (
+          <button
+            key={menu}
+            className={`p-2 m-2 rounded bg-blue-600 hover:bg-blue-700 ${selectedMenu === menu ? "bg-green-500" : ""}`}
+            onClick={() => setSelectedMenu(menu)}
+          >
+            {menu}
+          </button>
+        ))}
+      </div>
 
-        <button onclick="addOrder()">Add Order</button>
-        <button onclick="viewOrderSummary()">View Order Summary</button>
-        <button onclick="clearOrders()">Clear Orders</button>
-
-        <h3>Current Orders</h3>
-        <ul id="orderList"></ul>
-
-        <div id="summaryContainer" class="hidden">
-            <h3>Order Summary</h3>
-            <p>Silog Total: <span id="silogTotal">0</span></p>
-            <p>Frozen Goods Total: <span id="frozenTotal">0</span></p>
-            <p>Desert Total: <span id="desertTotal">0</span></p>
-
-            <h4>Item Breakdown:</h4>
-            <ul id="itemSummary"></ul>
+      {selectedMenu && menus[selectedMenu] && (
+        <div>
+          <h3 className="text-xl mb-2">Select an Option</h3>
+          <div>
+            {menus[selectedMenu].map((option) => (
+              <label key={option} className="block p-2">
+                <input
+                  type="radio"
+                  name="options"
+                  value={option}
+                  checked={selectedOption === option}
+                  onChange={() => setSelectedOption(option)}
+                  className="mr-2"
+                />
+                {option}
+              </label>
+            ))}
+          </div>
         </div>
+      )}
     </div>
+  );
+};
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-    
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD1uqjXN_82NgZZc8YP82iKoEbdOBdanv4",
-            authDomain: "order-management-87875.firebaseapp.com",
-            projectId: "order-management-87875",
-            storageBucket: "order-management-87875.firebasestorage.app",
-            messagingSenderId: "879210415165",
-            appId: "1:879210415165:web:b1d6808f6d790d2bbc5654",
-            measurementId: "G-FPLG5R3MS6"
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database(app);
-
-        const menuItems = {
-            "Silog Menu": ["Spam-Silog", "Hat-Silog", "Long-Silog", "Burger Steak"],
-            "Frozen Goods": ["Garlic Longanisa", "Sweet Longanisa", "Skinless Longanisa", "Embotido", "Chicharon Bulaklak", "Marinated Liempo", "Burger Patty", "Tocino"],
-            "Desert": ["Choco Moist"]
-        };
-
-        function updateOrderOptions() {
-            let category = document.getElementById("menuCategory").value;
-            let orderOptionsDiv = document.getElementById("orderOptions");
-            orderOptionsDiv.innerHTML = "";  // Clear existing options
-
-            if (category === "Desert") {
-                // For Desert, use a text input to enter custom dessert
-                orderOptionsDiv.innerHTML = `<label>Enter Dessert:</label>
-                                             <input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">`;
-            } else {
-                // For Silog Menu and Frozen Goods, show the list of items as radio buttons
-                let optionsHtml = "<div class='radio-container'>";
-                menuItems[category].forEach(item => {
-                    optionsHtml += `<label><input type="radio" name="orderItem" value="${item}"> ${item}</label>`;
-                });
-                optionsHtml += "</div>";
-                orderOptionsDiv.innerHTML = optionsHtml;
-            }
-        }
-
-        function addOrder() {
-            let name = document.getElementById("customerName").value.trim();
-            let category = document.getElementById("menuCategory").value;
-            let quantity = parseInt(document.getElementById("quantity").value);
-            let order = "";
-
-            if (category === "Desert") {
-                order = document.getElementById("customOrderItem").value.trim();
-            } else {
-                let selectedRadio = document.querySelector('input[name="orderItem"]:checked');
-                if (selectedRadio) {
-                    order = selectedRadio.value;
-                }
-            }
-
-            if (name && order && quantity > 0) {
-                let ordersRef = database.ref("orders");
-                let newOrderRef = ordersRef.push();
-                newOrderRef.set({
-                    name,
-                    category,
-                    order,
-                    quantity,
-                    status: "Pending"
-                });
-
-                renderOrders();
-                document.getElementById("customerName").value = "";
-                document.getElementById("quantity").value = "1";
-            } else {
-                alert("Please enter a name, select an order item, and specify a valid quantity.");
-            }
-        }
-
-        function renderOrders() {
-            let ordersRef = database.ref("orders");
-            ordersRef.once("value", (snapshot) => {
-                let orders = snapshot.val() || [];
-                let orderList = document.getElementById("orderList");
-                orderList.innerHTML = "";
-
-                for (let key in orders) {
-                    let order = orders[key];
-                    let li = document.createElement("li");
-                    li.textContent = `${order.name} - ${order.order} x${order.quantity} [${order.status}]`;
-
-                    let deleteBtn = document.createElement("button");
-                    deleteBtn.textContent = "❌";
-                    deleteBtn.style.background = "red";
-                    deleteBtn.onclick = function () {
-                        deleteOrder(key);
-                    };
-
-                    li.appendChild(deleteBtn);
-                    orderList.appendChild(li);
-                }
-            });
-        }
-
-        function deleteOrder(orderId) {
-            let ordersRef = database.ref("orders");
-            ordersRef.child(orderId).remove();
-            renderOrders();
-        }
-
-        function viewOrderSummary() {
-            let ordersRef = database.ref("orders");
-            ordersRef.once("value", (snapshot) => {
-                let orders = snapshot.val() || [];
-
-                let silogTotal = 0, frozenTotal = 0, desertTotal = 0;
-                let itemSummary = {};
-
-                for (let key in orders) {
-                    let order = orders[key];
-                    if (order.category === "Silog Menu") silogTotal += order.quantity;
-                    if (order.category === "Frozen Goods") frozenTotal += order.quantity;
-                    if (order.category === "Desert") desertTotal += order.quantity;
-
-                    itemSummary[order.order] = (itemSummary[order.order] || 0) + order.quantity;
-                }
-
-                document.getElementById("silogTotal").textContent = silogTotal;
-                document.getElementById("frozenTotal").textContent = frozenTotal;
-                document.getElementById("desertTotal").textContent = desertTotal;
-
-                let itemSummaryList = document.getElementById("itemSummary");
-                itemSummaryList.innerHTML = "";
-                for (let item in itemSummary) {
-                    let li = document.createElement("li");
-                    li.textContent = `${item}: ${itemSummary[item]}`;
-                    itemSummaryList.appendChild(li);
-                }
-
-                document.getElementById("summaryContainer").classList.remove("hidden");
-            });
-        }
-
-        function clearOrders() {
-            if (confirm("Are you sure you want to clear all orders?")) {
-                let ordersRef = database.ref("orders");
-                ordersRef.remove();
-                renderOrders();
-                document.getElementById("summaryContainer").classList.add("hidden");
-            }
-        }
-
-        window.onload = function () {
-            updateOrderOptions();
-            renderOrders();
-        };
-    </script>
-
-</body>
-</html>
+export default MenuComponent;
