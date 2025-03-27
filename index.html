@@ -9,16 +9,14 @@
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             text-align: center;
-            margin: 0;
-            padding: 0;
         }
         .container {
             width: 90%;
-            max-width: 600px;
-            margin: 50px auto;
+            max-width: 400px;
+            margin: auto;
             background: white;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0px 10px #aaa;
             border-radius: 10px;
         }
         .hidden {
@@ -26,29 +24,22 @@
         }
         button {
             padding: 10px 15px;
-            margin: 10px 0;
+            margin: 5px;
             border: none;
-            background-color: #28a745;
+            background: #28a745;
             color: white;
             cursor: pointer;
             border-radius: 5px;
             width: 100%;
-            transition: background-color 0.3s ease, transform 0.3s ease;
         }
         button:hover {
-            background-color: #218838;
-            transform: scale(1.05);
-        }
-        button:active {
-            transform: scale(1.02);
+            background: #218838;
         }
         .input-text {
             width: 100%;
             padding: 8px;
-            font-size: 16px;
+            font-size: 14px;
             margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
         }
         .radio-container {
             display: flex;
@@ -63,37 +54,16 @@
         select {
             width: 100%;
             padding: 8px;
-            font-size: 16px;
+            font-size: 14px;
             margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
         }
         #orderList {
             text-align: center;
             list-style-position: inside;
-            margin-top: 20px;
         }
         #itemSummary {
             text-align: left;
             list-style-position: inside;
-        }
-        .order-item {
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 5px;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .delete-btn {
-            background-color: #dc3545;
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -167,7 +137,7 @@
             orderOptionsDiv.innerHTML = "";
 
             if (category === "Desert") {
-                // For Desert, use a text input to enter custom dessert
+                // For Desert, show a text input to enter custom dessert
                 orderOptionsDiv.innerHTML = `<label>Enter Dessert:</label>
                                              <input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">`;
             } else {
@@ -217,7 +187,7 @@
 
         function renderOrders() {
             let ordersRef = database.ref("orders");
-            ordersRef.on("value", (snapshot) => {
+            ordersRef.once("value", (snapshot) => {
                 let orders = snapshot.val() || [];
                 let orderList = document.getElementById("orderList");
                 orderList.innerHTML = "";
@@ -225,12 +195,11 @@
                 for (let key in orders) {
                     let order = orders[key];
                     let li = document.createElement("li");
-                    li.className = "order-item";
                     li.textContent = `${order.name} - ${order.order} x${order.quantity} [${order.status}]`;
 
                     let deleteBtn = document.createElement("button");
-                    deleteBtn.className = "delete-btn";
                     deleteBtn.textContent = "❌";
+                    deleteBtn.style.background = "red";
                     deleteBtn.onclick = function () {
                         deleteOrder(key);
                     };
@@ -244,6 +213,7 @@
         function deleteOrder(orderId) {
             let ordersRef = database.ref("orders");
             ordersRef.child(orderId).remove();
+            renderOrders();
         }
 
         function viewOrderSummary() {
@@ -283,6 +253,8 @@
             if (confirm("Are you sure you want to clear all orders?")) {
                 let ordersRef = database.ref("orders");
                 ordersRef.remove();
+                renderOrders();
+                document.getElementById("summaryContainer").classList.add("hidden");
             }
         }
 
