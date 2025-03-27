@@ -109,7 +109,7 @@
         const menuItems = {
             "Silog Menu": ["Spam-Silog", "Hat-Silog", "Long-Silog", "Burger Steak"],
             "Frozen Goods": ["Garlic Longanisa", "Sweet Longanisa", "Skinless Longanisa", "Embotido", "Chicharon Bulaklak", "Marinated Liempo", "Burger Patty", "Tocino"],
-            "Desert": ["Choco Moist"]
+            "Desert": ["Choco Moist", "Spaghetti"]
         };
 
         let orders = [];
@@ -119,35 +119,20 @@
             let orderOptionsDiv = document.getElementById("orderOptions");
             orderOptionsDiv.innerHTML = ""; // Clear any previous content
 
-            if (category === "Desert") {
-                // For Desert, show a text input to enter custom dessert
-                orderOptionsDiv.innerHTML = `<label>Enter Dessert:</label>
-                                             <input type="text" id="customOrderItem" placeholder="Enter Dessert (e.g., Choco Moist)">`;
-            } else {
-                // For Silog Menu and Frozen Goods, show the list of items as radio buttons
-                let optionsHtml = "<div class='radio-container'>";
-                menuItems[category].forEach(item => {
-                    optionsHtml += `<label><input type="radio" name="orderItem" value="${item}"> ${item}</label>`;
-                });
-                optionsHtml += "</div>";
-                orderOptionsDiv.innerHTML = optionsHtml;
-            }
+            let optionsHtml = "<div class='radio-container'>";
+            menuItems[category].forEach(item => {
+                optionsHtml += `<label><input type="radio" name="orderItem" value="${item}"> ${item}</label>`;
+            });
+            optionsHtml += "</div>";
+            orderOptionsDiv.innerHTML = optionsHtml;
         }
 
         function addOrder() {
             let name = document.getElementById("customerName").value.trim();
             let category = document.getElementById("menuCategory").value;
             let quantity = parseInt(document.getElementById("quantity").value);
-            let order = "";
-
-            if (category === "Desert") {
-                order = document.getElementById("customOrderItem").value.trim();
-            } else {
-                let selectedRadio = document.querySelector('input[name="orderItem"]:checked');
-                if (selectedRadio) {
-                    order = selectedRadio.value;
-                }
-            }
+            let selectedRadio = document.querySelector('input[name="orderItem"]:checked');
+            let order = selectedRadio ? selectedRadio.value : "";
 
             if (name && order && quantity > 0) {
                 // Add the order to the orders array
