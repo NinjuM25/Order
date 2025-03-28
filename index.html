@@ -35,12 +35,6 @@
         button:hover {
             background: #218838;
         }
-        .input-text {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
         .radio-container {
             display: flex;
             flex-direction: column;
@@ -51,7 +45,7 @@
             margin: 5px 0;
             font-size: 16px;
         }
-        select {
+        select, input {
             width: 100%;
             padding: 8px;
             font-size: 14px;
@@ -73,7 +67,7 @@
         <h2>Order Management</h2>
 
         <label>Customer Name:</label>
-        <input type="text" id="customerName" class="input-text" placeholder="Enter name"><br>
+        <input type="text" id="customerName" placeholder="Enter name"><br>
 
         <label>Menu Category:</label>
         <select id="menuCategory" onchange="updateOrderOptions()">
@@ -117,7 +111,7 @@
         function updateOrderOptions() {
             let category = document.getElementById("menuCategory").value;
             let orderOptionsDiv = document.getElementById("orderOptions");
-            orderOptionsDiv.innerHTML = ""; // Clear any previous content
+            orderOptionsDiv.innerHTML = ""; // Clear previous options
 
             let optionsHtml = "<div class='radio-container'>";
             menuItems[category].forEach(item => {
@@ -135,8 +129,15 @@
             let order = selectedRadio ? selectedRadio.value : "";
 
             if (name && order && quantity > 0) {
-                // Add the order to the orders array
-                orders.push({ name, category, order, quantity, status: "Pending" });
+                // Check if the same customer already has this item
+                let existingOrder = orders.find(o => o.name === name && o.order === order);
+
+                if (existingOrder) {
+                    existingOrder.quantity += quantity; // Merge by adding quantity
+                } else {
+                    orders.push({ name, category, order, quantity, status: "Pending" });
+                }
+
                 renderOrders();
                 document.getElementById("customerName").value = "";
                 document.getElementById("quantity").value = "1";
@@ -166,7 +167,6 @@
         }
 
         function deleteOrder(orderIndex) {
-            // Remove the order from the orders array
             orders.splice(orderIndex, 1);
             renderOrders();
         }
