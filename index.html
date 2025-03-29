@@ -51,18 +51,13 @@
             font-size: 14px;
             margin-bottom: 10px;
         }
-        #orderList {
-            text-align: center;
-            list-style-position: inside;
-        }
-        #itemSummary {
+        #orderList, #itemSummary {
             text-align: left;
             list-style-position: inside;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h2>Order Management</h2>
 
@@ -93,7 +88,6 @@
             <p>Silog Total: <span id="silogTotal">0</span></p>
             <p>Frozen Goods Total: <span id="frozenTotal">0</span></p>
             <p>Desert Total: <span id="desertTotal">0</span></p>
-
             <h4>Item Breakdown:</h4>
             <ul id="itemSummary"></ul>
         </div>
@@ -111,8 +105,8 @@
         function updateOrderOptions() {
             let category = document.getElementById("menuCategory").value;
             let orderOptionsDiv = document.getElementById("orderOptions");
-            orderOptionsDiv.innerHTML = ""; // Clear previous options
-
+            orderOptionsDiv.innerHTML = "";
+            
             let optionsHtml = "<div class='radio-container'>";
             menuItems[category].forEach(item => {
                 optionsHtml += `<label><input type="radio" name="orderItem" value="${item}"> ${item}</label>`;
@@ -129,15 +123,12 @@
             let order = selectedRadio ? selectedRadio.value : "";
 
             if (name && order && quantity > 0) {
-                // Check if the same customer already has this item
                 let existingOrder = orders.find(o => o.name === name && o.order === order);
-
                 if (existingOrder) {
-                    existingOrder.quantity += quantity; // Merge by adding quantity
+                    existingOrder.quantity += quantity;
                 } else {
                     orders.push({ name, category, order, quantity, status: "Pending" });
                 }
-
                 renderOrders();
                 document.getElementById("customerName").value = "";
                 document.getElementById("quantity").value = "1";
@@ -149,18 +140,13 @@
         function renderOrders() {
             let orderList = document.getElementById("orderList");
             orderList.innerHTML = "";
-
             orders.forEach((order, index) => {
                 let li = document.createElement("li");
                 li.textContent = `${order.name} - ${order.order} x${order.quantity} [${order.status}]`;
-
                 let deleteBtn = document.createElement("button");
                 deleteBtn.textContent = "❌";
                 deleteBtn.style.background = "red";
-                deleteBtn.onclick = function () {
-                    deleteOrder(index);
-                };
-
+                deleteBtn.onclick = function () { deleteOrder(index); };
                 li.appendChild(deleteBtn);
                 orderList.appendChild(li);
             });
@@ -172,21 +158,15 @@
         }
 
         function viewOrderSummary() {
-            let silogTotal = 0, frozenTotal = 0, desertTotal = 0;
+            let totals = { "Silog Menu": 0, "Frozen Goods": 0, "Desert": 0 };
             let itemSummary = {};
-
             orders.forEach(order => {
-                if (order.category === "Silog Menu") silogTotal += order.quantity;
-                if (order.category === "Frozen Goods") frozenTotal += order.quantity;
-                if (order.category === "Desert") desertTotal += order.quantity;
-
+                totals[order.category] += order.quantity;
                 itemSummary[order.order] = (itemSummary[order.order] || 0) + order.quantity;
             });
-
-            document.getElementById("silogTotal").textContent = silogTotal;
-            document.getElementById("frozenTotal").textContent = frozenTotal;
-            document.getElementById("desertTotal").textContent = desertTotal;
-
+            document.getElementById("silogTotal").textContent = totals["Silog Menu"];
+            document.getElementById("frozenTotal").textContent = totals["Frozen Goods"];
+            document.getElementById("desertTotal").textContent = totals["Desert"];
             let itemSummaryList = document.getElementById("itemSummary");
             itemSummaryList.innerHTML = "";
             for (let item in itemSummary) {
@@ -194,23 +174,8 @@
                 li.textContent = `${item}: ${itemSummary[item]}`;
                 itemSummaryList.appendChild(li);
             }
-
             document.getElementById("summaryContainer").classList.remove("hidden");
         }
-
-        function clearOrders() {
-            if (confirm("Are you sure you want to clear all orders?")) {
-                orders = [];
-                renderOrders();
-                document.getElementById("summaryContainer").classList.add("hidden");
-            }
-        }
-
-        window.onload = function () {
-            updateOrderOptions();
-            renderOrders();
-        };
     </script>
-
 </body>
 </html>
