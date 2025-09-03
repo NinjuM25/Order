@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Item Entry with Popup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0; padding: 10px;
+    }
+    .form-container {
+      background: #fff; padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      max-width: 1000px; margin: auto;
+    }
+    h2 { text-align: center; font-size: 1.4em; margin: 10px 0; }
+    button {
+      background: #007bff; color: #fff;
+      border: none; padding: 10px 15px;
+      border-radius: 6px; cursor: pointer;
+      font-size: 1em;
+      margin: 5px 5px 5px 0;
+    }
+    button:hover { background: #0056b3; }
+    .table-wrapper {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    table {
+      width: 100%; min-width: 600px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd; padding: 6px; text-align: center;
+      font-size: 0.9em;
+    }
+    th { background: #007bff; color: #fff; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    tfoot td { font-weight: bold; background: #eee; }
+
+    /* Overlay Popup */
+    .overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none; justify-content: center; align-items: center;
+      z-index: 1000;
+      padding: 10px;
+    }
+    .card {
+      background: white; padding: 15px;
+      border-radius: 10px; width: 95%;
+      max-width: 400px; box-sizing: border-box;
+    }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+    .radio-inline { display: flex; flex-wrap: wrap; gap: 10px; }
+    input, select {
+      width: 100%; padding: 7px;
+      border: 1px solid #ccc; border-radius: 5px;
+      font-size: 0.95em;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 600px) {
+      th, td { font-size: 0.8em; padding: 5px; }
+      h2 { font-size: 1.2em; }
+      button { width: 100%; font-size: 0.95em; margin: 5px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2>Item Entry System</h2>
+  <button id="addItemBtn">Add Item</button>
+
+  <div class="table-wrapper">
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th>Buyer</th>
+          <th>Category</th>
+          <th>Item</th>
+          <th>Hotdog Option</th>
+          <th>Price</th>
+          <th>Charge</th>
+          <th>Total</th>
+          <th>Balance</th>
+          <th>Paid</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">Totals</td>
+          <td id="priceTotal">0</td>
+          <td id="chargeTotal">0</td>
+          <td id="grandTotal">0</td>
+          <td id="balanceTotal">0</td>
+          <td colspan="2"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+    <button onclick="generateSummary()">Generate Summary</button>
+    <button onclick="generateItemSummary()">Item Summary</button>
+  </div>
+</div>
+
+<!-- Popup Form -->
+<div id="itemModal" class="overlay">
+  <div class="card">
+    <h3 style="text-align:center;margin-bottom:10px;">Add New Item</h3>
+    <div class="form-group">
+      <label>Buyer Name</label>
+      <input type="text" id="buyerInput" placeholder="Enter buyer name">
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <div class="radio-inline">
+        <label><input type="radio" name="category" value="Dry Goods"> Dry Goods</label>
+        <label><input type="radio" name="category" value="Food Court"> Food Court</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Item Name</label>
+      <input type="text" id="itemName" placeholder="Enter item name">
+    </div>
+    <div class="form-group" id="hotdogOptions" style="display:none;">
+      <label>Hotdog Option</label>
+      <div class="radio-inline">
+        <label><input type="radio" name="hotdog" value="w/ Drink"> w/ Drink (30)</label>
+        <label><input type="radio" name="hotdog" value="No Drink"> No Drink (20)</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Price</label>
+      <input type="number" id="price" placeholder="Enter price">
+    </div>
+    <div class="form-group">
+      <label>Charge</label>
+      <input type="number" id="charge" placeholder="Auto charge">
+    </div>
+    <div style="display:flex;justify-content:space-between;gap:10px;">
+      <button style="flex:1;background:#6c757d;" onclick="closeItemModal()">Cancel</button>
+      <button style="flex:1;" onclick="confirmItem()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tableBody = document.querySelector("#itemsTable tbody");
+  const priceTotalCell = document.getElementById("priceTotal");
+  const chargeTotalCell = document.getElementById("chargeTotal");
+  const grandTotalCell = document.getElementById("grandTotal");
+  const balanceTotalCell = document.getElementById("balanceTotal");
+
+  document.getElementById("addItemBtn").addEventListener("click", () => {
+    document.getElementById("itemModal").style.display = "flex";
+  });
+
+  function closeItemModal() {
+    document.getElementById("itemModal").style.display = "none";
+    document.querySelectorAll("#itemModal input").forEach(i => i.value = "");
+    document.querySelectorAll("#itemModal input[type=radio]").forEach(r => r.checked = false);
+    document.getElementById("hotdogOptions").style.display = "none";
+  }
+
+  document.getElementById("itemName").addEventListener("input", e => {
+    const val = e.target.value.toLowerCase();
+    document.getElementById("hotdogOptions").style.display = val.includes("hotdog") ? "block" : "none";
+  });
+
+  function confirmItem() {
+    const buyer = document.getElementById("buyerInput").value.trim();
+    if (!buyer) return alert("Enter buyer name!");
+
+    const category = document.querySelector("input[name='category']:checked");
+    if (!category) return alert("Select category!");
+
+    const itemName = document.getElementById("itemName").value.trim();
+    if (!itemName) return alert("Enter item name!");
+
+    let hotdogOpt = "";
+    if (itemName.toLowerCase().includes("hotdog")) {
+      const hotdogChoice = document.querySelector("input[name='hotdog']:checked");
+      if (!hotdogChoice) return alert("Select Hotdog option!");
+      hotdogOpt = hotdogChoice.value;
+    }
+
+    const price = parseFloat(document.getElementById("price").value) || 0;
+    let charge = parseFloat(document.getElementById("charge").value) || 0;
+
+    if (itemName.toLowerCase().includes("hotdog")) {
+      charge = hotdogOpt === "w/ Drink" ? 30 : 20;
+    } else if (category.value === "Dry Goods" && !charge) {
+      charge = 50;
+    }
+
+    addRowToTable({buyer, category: category.value, item: itemName, hotdog: hotdogOpt, price, charge, balance: 0});
+    saveData();
+    closeItemModal();
+  }
+
+  function addRowToTable(data) {
+    const total = data.price + data.charge;
+    const newRow = tableBody.insertRow();
+    newRow.innerHTML = `
+      <td>${data.buyer}</td>
+      <td>${data.category}</td>
+      <td>${data.item}</td>
+      <td>${data.hotdog || ""}</td>
+      <td contenteditable="true" oninput="editCell(this,'price')">${data.price}</td>
+      <td contenteditable="true" oninput="editCell(this,'charge')">${data.charge}</td>
+      <td>${total}</td>
+      <td contenteditable="true" oninput="editCell(this,'balance')">${data.balance || 0}</td>
+      <td><input type="checkbox" onchange="saveData()"></td>
+      <td><button onclick="deleteRow(this)">Delete</button></td>
+    `;
+    updateTableTotals();
+  }
+
+  function editCell(cell, type) {
+    const row = cell.parentElement;
+    const price = parseFloat(row.cells[4].innerText) || 0;
+    const charge = parseFloat(row.cells[5].innerText) || 0;
+    row.cells[6].innerText = price + charge;
+    updateTableTotals();
+    saveData();
+  }
+
+  function updateTableTotals() {
+    let priceSum = 0, chargeSum = 0, grandSum = 0, balanceSum = 0;
+    for (let row of tableBody.rows) {
+      priceSum += parseFloat(row.cells[4].innerText) || 0;
+      chargeSum += parseFloat(row.cells[5].innerText) || 0;
+      grandSum += parseFloat(row.cells[6].innerText) || 0;
+      balanceSum += parseFloat(row.cells[7].innerText) || 0;
+    }
+    priceTotalCell.innerText = priceSum;
+    chargeTotalCell.innerText = chargeSum;
+    grandTotalCell.innerText = grandSum;
+    balanceTotalCell.innerText = balanceSum;
+  }
+
+  function deleteRow(btn) {
+    btn.closest("tr").remove();
+    updateTableTotals();
+    saveData();
+  }
+
+  function saveData() {
+    const data = [];
+    for (let row of tableBody.rows) {
+      data.push({
+        buyer: row.cells[0].innerText,
+        category: row.cells[1].innerText,
+        item: row.cells[2].innerText,
+        hotdog: row.cells[3].innerText,
+        price: parseFloat(row.cells[4].innerText) || 0,
+        charge: parseFloat(row.cells[5].innerText) || 0,
+        total: parseFloat(row.cells[6].innerText) || 0,
+        balance: parseFloat(row.cells[7].innerText) || 0,
+        paid: row.cells[8].querySelector("input").checked
+      });
+    }
+    localStorage.setItem("itemsData", JSON.stringify(data));
+  }
+
+  function loadData() {
+    const saved = JSON.parse(localStorage.getItem("itemsData") || "[]");
+    saved.forEach(row => addRowToTable(row));
+    [...tableBody.rows].forEach((row, i) => {
+      row.cells[8].querySelector("input").checked = saved[i].paid;
+    });
+    updateTableTotals();
+  }
+
+  function generateSummary() {
+    const buyers = {};
+    for (let row of tableBody.rows) {
+      const buyer = row.cells[0].innerText;
+      const price = parseFloat(row.cells[4].innerText) || 0;
+      const charge = parseFloat(row.cells[5].innerText) || 0;
+      const total = parseFloat(row.cells[6].innerText) || 0;
+      const balance = parseFloat(row.cells[7].innerText) || 0;
+      const paid = row.cells[8].querySelector("input").checked;
+
+      if (!buyers[buyer]) {
+        buyers[buyer] = {price:0, charge:0, total:0, balance:0, paid};
+      }
+      buyers[buyer].price += price;
+      buyers[buyer].charge += charge;
+      buyers[buyer].total += total;
+      buyers[buyer].balance += balance;
+      buyers[buyer].paid = paid;
+    }
+
+    let summary = "📊 Summary by Buyer:\n\n";
+    let overall = {price:0, charge:0, total:0, balance:0};
+
+    for (let [buyer, d] of Object.entries(buyers)) {
+      summary += `${buyer}:\n`;
+      summary += `  Price: ${d.price}\n`;
+      summary += `  Charge: ${d.charge}\n`;
+      summary += `  Total: ${d.total}\n`;
+      summary += `  Balance: ${d.balance}\n`;
+      summary += `  Paid: ${d.paid ? "✅ Yes" : "❌ No"}\n\n`;
+
+      overall.price += d.price;
+      overall.charge += d.charge;
+      overall.total += d.total;
+      overall.balance += d.balance;
+    }
+
+    summary += "====================\n";
+    summary += `TOTAL Price: ${overall.price}\n`;
+    summary += `TOTAL Charge: ${overall.charge}\n`;
+    summary += `TOTAL Grand: ${overall.total}\n`;
+    summary += `TOTAL Balance: ${overall.balance}\n`;
+
+    alert(summary);
+  }
+
+  function generateItemSummary() {
+    const items = {};
+    for (let row of tableBody.rows) {
+      let itemName = row.cells[2].innerText;
+      let hotdog = row.cells[3].innerText;
+      if (hotdog) itemName += " " + hotdog;
+
+      if (!items[itemName]) items[itemName] = 0;
+      items[itemName]++;
+    }
+
+    let summary = "📦 Item Summary (Orders Count):\n\n";
+    for (let [item, count] of Object.entries(items)) {
+      summary += `${item}: ${count} order(s)\n`;
+    }
+
+    alert(summary);
+  }
+
+  window.onload = loadData;
+</script>
+
+</body>
+</html>
