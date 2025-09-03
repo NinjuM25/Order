@@ -70,19 +70,8 @@ tfoot td { font-weight: bold; background: #eee; }
 input, select, textarea { width: 100%; padding: 5px; font-size: 12px; border: 1px solid #ccc; border-radius: 5px; }
 textarea.summary-content { flex-grow: 1; max-height: 70vh; overflow-y: auto; height: auto; resize: vertical; font-size:12px; }
 
-/* Bigger Generate/Item Summary popups */
-#summaryModal .card {
-  width: 95%;       /* almost full screen width */
-  max-width: 600px; /* wider for tablets/desktop */
-  padding: 15px;
-}
-#summaryModal textarea.summary-content {
-  font-size: 14px;  /* larger text for readability */
-  height: 70vh;     /* fills most of the screen */
-}
-
-/* Extra small screen adjustments */
-@media (max-width: 400px) {
+/* Extra small screen adjustments - shrink table and font */
+@media (max-width: 600px) {
   table { font-size: 10px; }
   th, td { padding: 2px; }
   button { padding: 4px 6px; font-size: 12px; }
@@ -170,7 +159,7 @@ textarea.summary-content { flex-grow: 1; max-height: 70vh; overflow-y: auto; hei
   </div>
 </div>
 
-<!-- Summary Modal -->
+<!-- Summary Modal (same styling as Add Item) -->
 <div id="summaryModal" class="overlay">
   <div class="card">
     <h3 id="summaryTitle">Summary</h3>
