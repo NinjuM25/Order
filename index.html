@@ -3,48 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Responsive Item Entry</title>
+<title>One-Page Responsive Item Entry</title>
 <style>
 body {
   font-family: Arial, sans-serif;
   background: #f4f4f9;
-  margin: 0; padding: 20px;
+  margin: 0; padding: 10px;
 }
 .form-container {
-  background: #fff; padding: 20px;
+  background: #fff; padding: 10px;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   max-width: 1000px; margin: auto;
 }
-h2 { text-align: center; }
+h2 { text-align: center; font-size: 18px; margin-bottom:10px;}
 button {
   background: #007bff; color: #fff;
-  border: none; padding: 10px 15px;
+  border: none; padding: 6px 10px;
   border-radius: 6px; cursor: pointer;
-  margin: 5px;
+  margin: 3px;
+  font-size: 12px;
 }
 button:hover { background: #0056b3; }
 
-/* Responsive table container */
-.table-container {
-  width: 100%;
-  overflow-x: auto;
-  margin-top: 20px;
-}
-
+/* Table styles for one-page responsive */
+.table-container { width: 100%; }
 table {
   width: 100%;
+  table-layout: fixed; /* force table to fit screen */
   border-collapse: collapse;
-  min-width: 800px; /* minimum width to allow horizontal scroll */
+  font-size: 12px;
 }
 th, td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 4px;
   text-align: center;
-  word-wrap: break-word;
+  word-break: break-word; /* allow text wrap */
 }
 th { background: #007bff; color: #fff; }
-tr:nth-child(even) { background: #f9f9f9; }
 tfoot td { font-weight: bold; background: #eee; }
 
 /* Overlay Popups */
@@ -61,29 +57,18 @@ tfoot td { font-weight: bold; background: #eee; }
   background: white;
   padding: 10px;
   border-radius: 10px;
-  width: 100%;
-  max-width: 450px;
+  width: 95%;
+  max-width: 400px;
   box-sizing: border-box;
-  margin: auto;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
 }
-@media (max-width: 480px) {
-  .card { width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 8px; }
-}
-
-.form-group { margin-bottom: 12px; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-.radio-inline { display: flex; gap: 20px; flex-wrap: wrap; }
-input, select, textarea {
-  width: 100%; padding: 7px;
-  border: 1px solid #ccc; border-radius: 5px;
-}
-textarea.summary-content {
-  flex-grow: 1; max-height: 70vh; overflow-y: auto; height: auto;
-  width: 100%; resize: vertical;
-}
+.form-group { margin-bottom: 10px; }
+.form-group label { display: block; margin-bottom: 3px; font-weight: bold; font-size: 12px; }
+.radio-inline { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; }
+input, select, textarea { width: 100%; padding: 5px; font-size: 12px; border: 1px solid #ccc; border-radius: 5px; }
+textarea.summary-content { flex-grow: 1; max-height: 70vh; overflow-y: auto; height: auto; resize: vertical; font-size:12px; }
 </style>
 </head>
 <body>
