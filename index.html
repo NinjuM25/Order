@@ -3,34 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>One-Page Responsive Item Entry</title>
+<title>Responsive One-Page Item Entry</title>
 <style>
 body {
   font-family: Arial, sans-serif;
   background: #f4f4f9;
-  margin: 0; padding: 10px;
+  margin: 0; padding: 5px;
 }
 .form-container {
-  background: #fff; padding: 10px;
+  background: #fff; padding: 8px;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   max-width: 1000px; margin: auto;
 }
-h2 { text-align: center; font-size: 18px; margin-bottom:10px;}
+h2 { text-align: center; font-size: 18px; margin-bottom:8px;}
 button {
   background: #007bff; color: #fff;
-  border: none; padding: 6px 10px;
+  border: none; padding: 8px 12px;
   border-radius: 6px; cursor: pointer;
   margin: 3px;
-  font-size: 12px;
+  font-size: 14px;
 }
 button:hover { background: #0056b3; }
 
-/* Table styles for one-page responsive */
+/* Table responsive one-page */
 .table-container { width: 100%; }
 table {
   width: 100%;
-  table-layout: fixed; /* force table to fit screen */
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 12px;
 }
@@ -38,7 +38,7 @@ th, td {
   border: 1px solid #ddd;
   padding: 4px;
   text-align: center;
-  word-break: break-word; /* allow text wrap */
+  word-break: break-word;
 }
 th { background: #007bff; color: #fff; }
 tfoot td { font-weight: bold; background: #eee; }
@@ -69,6 +69,25 @@ tfoot td { font-weight: bold; background: #eee; }
 .radio-inline { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; }
 input, select, textarea { width: 100%; padding: 5px; font-size: 12px; border: 1px solid #ccc; border-radius: 5px; }
 textarea.summary-content { flex-grow: 1; max-height: 70vh; overflow-y: auto; height: auto; resize: vertical; font-size:12px; }
+
+/* Bigger Generate/Item Summary popups */
+#summaryModal .card {
+  width: 95%;       /* almost full screen width */
+  max-width: 600px; /* wider for tablets/desktop */
+  padding: 15px;
+}
+#summaryModal textarea.summary-content {
+  font-size: 14px;  /* larger text for readability */
+  height: 70vh;     /* fills most of the screen */
+}
+
+/* Extra small screen adjustments */
+@media (max-width: 400px) {
+  table { font-size: 10px; }
+  th, td { padding: 2px; }
+  button { padding: 4px 6px; font-size: 12px; }
+  .card { width: 95%; padding: 8px; }
+}
 </style>
 </head>
 <body>
@@ -76,8 +95,8 @@ textarea.summary-content { flex-grow: 1; max-height: 70vh; overflow-y: auto; hei
 <div class="form-container">
 <h2>Item Entry System</h2>
 <button id="addItemBtn">Add Item</button>
-<button onclick="generateSummary()">Generate Summary</button>
-<button onclick="itemSummary()">Item Summary</button>
+<button id="generateBtn" onclick="generateSummary()">Generate Summary</button>
+<button id="itemSummaryBtn" onclick="itemSummary()">Item Summary</button>
 
 <div class="table-container">
   <table id="itemsTable">
