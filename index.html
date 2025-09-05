@@ -1,104 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Responsive One-Page Item Entry</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f9;
-  margin: 0; padding: 5px;
-}
-.form-container {
-  background: #fff; padding: 8px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  max-width: 1000px; margin: auto;
-}
-h2 { text-align: center; font-size: 18px; margin-bottom:8px;}
-button {
-  background: #007bff; color: #fff;
-  border: none; padding: 8px 12px;
-  border-radius: 6px; cursor: pointer;
-  margin: 3px;
-  font-size: 14px;
-}
-button:hover { background: #0056b3; }
-
-/* Table responsive one-page */
-.table-container { width: 100%; }
-table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-th, td {
-  border: 1px solid #ddd;
-  padding: 4px;
-  text-align: center;
-  word-break: break-word;
-}
-th { background: #007bff; color: #fff; }
-tfoot td { font-weight: bold; background: #eee; }
-
-/* Overlay Popups */
-.overlay {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: none; justify-content: center; align-items: center;
-  z-index: 1000;
-  padding: 5px;
-  overflow-y: auto;
-}
-.card {
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-  width: 95%;
-  max-width: 400px;
-  box-sizing: border-box;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-.form-group { margin-bottom: 10px; }
-.form-group label { display: block; margin-bottom: 3px; font-weight: bold; font-size: 12px; }
-.radio-inline { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; }
-input, select, textarea { width: 100%; padding: 5px; font-size: 12px; border: 1px solid #ccc; border-radius: 5px; }
-textarea.summary-content { flex-grow: 1; max-height: 70vh; overflow-y: auto; height: auto; resize: vertical; font-size:12px; }
-
-/* Extra small screen adjustments - shrink table and font */
-@media (max-width: 600px) {
-  table { font-size: 10px; }
-  th, td { padding: 2px; }
-  button { padding: 4px 6px; font-size: 12px; }
-  .card { width: 95%; padding: 8px; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order-Hub</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 5px;
+      background: #f4f4f9;
+      overflow: hidden;
+    }
+    h2 {
+      margin: 5px 0;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 4px;
+      text-align: center;
+      word-wrap: break-word;
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .subtotal-row {
+      background: #e0e0e0;
+      font-weight: bold;
+    }
+    button {
+      padding: 6px 10px;
+      margin: 2px;
+      border: none;
+      border-radius: 5px;
+      background: #007bff;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .summary-btns {
+      text-align: center;
+      margin: 5px 0;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .overlay.active {
+      display: flex;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      width: 95%;
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .card h3 {
+      margin-top: 0;
+    }
+    .form-group {
+      margin-bottom: 8px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 5px;
+      font-size: 12px;
+      box-sizing: border-box;
+    }
+    .actions {
+      text-align: right;
+      margin-top: 10px;
+    }
+    @media (max-width: 600px) {
+      body { font-size: 11px; }
+      table { font-size: 11px; }
+      button { font-size: 11px; padding: 5px 8px; }
+    }
+    #itemSummaryContent {
+      white-space: pre-wrap;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  </style>
 </head>
 <body>
+  <h2>Order-Hub</h2>
 
-<div class="form-container">
-<h2>Item Entry System</h2>
-<button id="addItemBtn">Add Item</button>
-<button id="generateBtn" onclick="generateSummary()">Generate Summary</button>
-<button id="itemSummaryBtn" onclick="itemSummary()">Item Summary</button>
+  <div class="summary-btns">
+    <button onclick="openAddItem()">Add Item</button>
+    <button onclick="openSummary()">Generate Summary</button>
+    <button onclick="openItemSummary()">Item Summary</button>
+  </div>
 
-<div class="table-container">
-  <table id="itemsTable">
+  <table id="ordersTable">
     <thead>
       <tr>
         <th>Buyer</th>
         <th>Category</th>
         <th>Item</th>
-        <th>Hotdog Option</th>
         <th>Price (NTD)</th>
         <th>Charge (NTD)</th>
+        <th>Quantity</th>
         <th>Total (NTD)</th>
-        <th>Balance (NTD)</th>
+        <th>Balance</th>
         <th>Paid</th>
         <th>Delete</th>
       </tr>
@@ -106,232 +137,251 @@ textarea.summary-content { flex-grow: 1; max-height: 70vh; overflow-y: auto; hei
     <tbody></tbody>
     <tfoot>
       <tr>
-        <td colspan="4">Totals</td>
-        <td id="priceTotal">0</td>
-        <td id="chargeTotal">0</td>
+        <td colspan="4"><b>Totals</b></td>
+        <td id="totalCharge">0</td>
+        <td id="totalQty">0</td>
         <td id="grandTotal">0</td>
-        <td id="balanceTotal">0</td>
-        <td colspan="2"></td>
+        <td colspan="3"></td>
       </tr>
     </tfoot>
   </table>
-</div>
-</div>
 
-<!-- Add Item Modal -->
-<div id="itemModal" class="overlay">
-  <div class="card">
-    <h3>Add New Item</h3>
-    <div class="form-group">
-      <label>Buyer Name</label>
-      <input type="text" id="buyerInput" placeholder="Enter buyer name">
-    </div>
-    <div class="form-group">
-      <label>Category</label>
-      <div class="radio-inline">
+  <!-- Add Item Modal -->
+  <div class="overlay" id="addItemModal">
+    <div class="card">
+      <h3>Add Item</h3>
+      <div class="form-group">
+        <label>Buyer Name</label>
+        <input type="text" id="buyerNameInput">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
         <label><input type="radio" name="category" value="Dry Goods"> Dry Goods</label>
         <label><input type="radio" name="category" value="Food Court"> Food Court</label>
+        <label><input type="radio" name="category" value="Hotdog"> Hotdog</label>
+      </div>
+      <div class="form-group">
+        <label>Item Name</label>
+        <input type="text" id="itemNameInput">
+      </div>
+      <div class="form-group" id="hotdogOptions" style="display:none;">
+        <label>Hotdog Options</label>
+        <label><input type="radio" name="hotdogOption" value="w/ Drink"> With Drink</label>
+        <label><input type="radio" name="hotdogOption" value="No Drink"> No Drink</label>
+      </div>
+      <div class="form-group">
+        <label>Price (NTD)</label>
+        <input type="number" id="priceInput" min="0">
+      </div>
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" id="quantityInput" min="1" value="1">
+      </div>
+      <div class="actions">
+        <button onclick="saveItem()">Save</button>
+        <button onclick="closeAddItem()">Cancel</button>
       </div>
     </div>
-    <div class="form-group">
-      <label>Item Name</label>
-      <input type="text" id="itemName" placeholder="Enter item name">
-    </div>
-    <div class="form-group" id="hotdogOptions" style="display:none;">
-      <label>Hotdog Option</label>
-      <div class="radio-inline">
-        <label><input type="radio" name="hotdog" value="w/ Drink"> w/ Drink (30 NTD)</label>
-        <label><input type="radio" name="hotdog" value="No Drink"> No Drink (20 NTD)</label>
+  </div>
+
+  <!-- Buyer Summary Modal -->
+  <div class="overlay" id="summaryModal">
+    <div class="card" style="max-height:none; overflow-y:visible;">
+      <h3>Buyer Summary</h3>
+      <div id="summaryContent"></div>
+      <div class="actions">
+        <button onclick="closeSummary()">Close</button>
       </div>
     </div>
-    <div class="form-group">
-      <label>Price (NTD)</label>
-      <input type="number" id="price" placeholder="Enter price">
-    </div>
-    <div class="form-group">
-      <label>Charge (NTD)</label>
-      <input type="number" id="charge" placeholder="Auto charge">
-    </div>
-    <div style="text-align:right;">
-      <button onclick="closeItemModal()">Cancel</button>
-      <button onclick="confirmItem()">Confirm</button>
+  </div>
+
+  <!-- Item Summary Modal -->
+  <div class="overlay" id="itemSummaryModal">
+    <div class="card" style="max-height:none; overflow-y:visible;">
+      <h3>Item Summary</h3>
+      <div id="itemSummaryContent"></div>
+      <div class="actions">
+        <button onclick="closeItemSummary()">Close</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Summary Modal (same styling as Add Item) -->
-<div id="summaryModal" class="overlay">
-  <div class="card">
-    <h3 id="summaryTitle">Summary</h3>
-    <textarea id="summaryText" readonly class="summary-content"></textarea>
-    <div style="text-align:right;margin-top:10px;">
-      <button onclick="closeSummary()">Close</button>
-    </div>
-  </div>
-</div>
+  <script>
+    let orders = JSON.parse(localStorage.getItem('orders')) || {};
 
-<script>
-const tableBody = document.querySelector("#itemsTable tbody");
-const priceTotalCell = document.getElementById("priceTotal");
-const chargeTotalCell = document.getElementById("chargeTotal");
-const grandTotalCell = document.getElementById("grandTotal");
-const balanceTotalCell = document.getElementById("balanceTotal");
+    function openAddItem() {
+      document.getElementById('addItemModal').classList.add('active');
+    }
+    function closeAddItem() {
+      document.getElementById('addItemModal').classList.remove('active');
+    }
 
-document.getElementById("addItemBtn").addEventListener("click", () => {
-  document.getElementById("itemModal").style.display = "flex";
-});
-
-function closeItemModal() {
-  document.getElementById("itemModal").style.display = "none";
-  document.querySelectorAll("#itemModal input").forEach(i => i.value = "");
-  document.querySelectorAll("#itemModal input[type=radio]").forEach(r => r.checked = false);
-  document.getElementById("hotdogOptions").style.display = "none";
-}
-
-document.getElementById("itemName").addEventListener("input", e => {
-  const val = e.target.value.toLowerCase();
-  document.getElementById("hotdogOptions").style.display = val.includes("hotdog") ? "block" : "none";
-});
-
-function confirmItem() {
-  const buyer = document.getElementById("buyerInput").value.trim();
-  if (!buyer) return alert("Enter buyer name!");
-  const category = document.querySelector("input[name='category']:checked");
-  if (!category) return alert("Select category!");
-  const itemName = document.getElementById("itemName").value.trim();
-  if (!itemName) return alert("Enter item name!");
-
-  let hotdogOpt = "";
-  if (itemName.toLowerCase().includes("hotdog")) {
-    const hotdogChoice = document.querySelector("input[name='hotdog']:checked");
-    if (!hotdogChoice) return alert("Select Hotdog option!");
-    hotdogOpt = hotdogChoice.value;
-  }
-
-  const price = parseFloat(document.getElementById("price").value) || 0;
-  let charge = parseFloat(document.getElementById("charge").value) || 0;
-
-  if (itemName.toLowerCase().includes("hotdog")) {
-    charge = hotdogOpt === "w/ Drink" ? 30 : 20;
-  } else if (category.value === "Dry Goods" && !charge) {
-    charge = 50;
-  }
-
-  addRowToTable({buyer, category: category.value, item: itemName, hotdog: hotdogOpt, price, charge, balance:0});
-  saveData();
-  closeItemModal();
-}
-
-function addRowToTable(data) {
-  const total = data.price + data.charge;
-  const newRow = tableBody.insertRow();
-  newRow.innerHTML = `
-    <td>${data.buyer}</td>
-    <td>${data.category}</td>
-    <td>${data.item}</td>
-    <td>${data.hotdog || ""}</td>
-    <td contenteditable="true" oninput="editCell(this,'price')">${data.price}</td>
-    <td contenteditable="true" oninput="editCell(this,'charge')">${data.charge}</td>
-    <td>${total}</td>
-    <td contenteditable="true" oninput="editCell(this,'balance')">${data.balance || 0}</td>
-    <td><input type="checkbox" onchange="saveData()"></td>
-    <td><button onclick="deleteRow(this)">Delete</button></td>
-  `;
-  updateTableTotals();
-}
-
-function editCell(cell, type) {
-  const row = cell.parentElement;
-  const price = parseFloat(row.cells[4].innerText) || 0;
-  const charge = parseFloat(row.cells[5].innerText) || 0;
-  row.cells[6].innerText = price + charge;
-  updateTableTotals();
-  saveData();
-}
-
-function updateTableTotals() {
-  let priceSum=0, chargeSum=0, grandSum=0, balanceSum=0;
-  for (let row of tableBody.rows) {
-    priceSum += parseFloat(row.cells[4].innerText)||0;
-    chargeSum += parseFloat(row.cells[5].innerText)||0;
-    grandSum += parseFloat(row.cells[6].innerText)||0;
-    balanceSum += parseFloat(row.cells[7].innerText)||0;
-  }
-  priceTotalCell.innerText = priceSum;
-  chargeTotalCell.innerText = chargeSum;
-  grandTotalCell.innerText = grandSum;
-  balanceTotalCell.innerText = balanceSum;
-}
-
-function deleteRow(btn) { btn.closest("tr").remove(); updateTableTotals(); saveData(); }
-
-function saveData() {
-  const data=[];
-  for(let row of tableBody.rows){
-    data.push({
-      buyer:row.cells[0].innerText,
-      category:row.cells[1].innerText,
-      item:row.cells[2].innerText,
-      hotdog:row.cells[3].innerText,
-      price:parseFloat(row.cells[4].innerText)||0,
-      charge:parseFloat(row.cells[5].innerText)||0,
-      total:parseFloat(row.cells[6].innerText)||0,
-      balance:parseFloat(row.cells[7].innerText)||0,
-      paid:row.cells[8].querySelector("input").checked
+    document.querySelectorAll('input[name="category"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        document.getElementById('hotdogOptions').style.display = 
+          radio.value === 'Hotdog' ? 'block' : 'none';
+      });
     });
-  }
-  localStorage.setItem("itemsData",JSON.stringify(data));
-}
 
-function loadData() {
-  const saved=JSON.parse(localStorage.getItem("itemsData")||"[]");
-  saved.forEach(row=>addRowToTable(row));
-  [...tableBody.rows].forEach((row,i)=>row.cells[8].querySelector("input").checked=saved[i].paid);
-  updateTableTotals();
-}
+    function saveItem() {
+      const buyer = document.getElementById('buyerNameInput').value.trim();
+      const category = document.querySelector('input[name="category"]:checked')?.value;
+      const itemName = document.getElementById('itemNameInput').value.trim();
+      const hotdogOption = document.querySelector('input[name="hotdogOption"]:checked')?.value;
+      const price = parseFloat(document.getElementById('priceInput').value) || 0;
+      const quantity = parseInt(document.getElementById('quantityInput').value) || 1;
 
-function showSummaryModal(title,text){
-  document.getElementById("summaryTitle").innerText=title;
-  document.getElementById("summaryText").value=text;
-  document.getElementById("summaryModal").style.display="flex";
-}
-function closeSummary(){document.getElementById("summaryModal").style.display="none";}
+      if (!buyer || !category || !itemName) return alert('Please fill all fields');
 
-function generateSummary(){
-  const buyers={};
-  for(let row of tableBody.rows){
-    const buyer=row.cells[0].innerText;
-    const price=parseFloat(row.cells[4].innerText)||0;
-    const charge=parseFloat(row.cells[5].innerText)||0;
-    const total=parseFloat(row.cells[6].innerText)||0;
-    const balance=parseFloat(row.cells[7].innerText)||0;
-    const paid=row.cells[8].querySelector("input").checked;
-    if(!buyers[buyer]) buyers[buyer]={price:0,charge:0,total:0,balance:0,paid};
-    buyers[buyer].price+=price; buyers[buyer].charge+=charge;
-    buyers[buyer].total+=total; buyers[buyer].balance+=balance; buyers[buyer].paid=paid;
-  }
-  let summary="",overall={price:0,charge:0,total:0,balance:0};
-  for(let [buyer,d] of Object.entries(buyers)){
-    summary+=`${buyer}:\n  Price: ${d.price} NTD\n  Charge: ${d.charge} NTD\n  Total: ${d.total} NTD\n  Balance: ${d.balance} NTD\n  Paid: ${d.paid?"✅":"❌"}\n\n`;
-    overall.price+=d.price; overall.charge+=d.charge; overall.total+=d.total; overall.balance+=d.balance;
-  }
-  summary+=`====================\nTOTAL Price: ${overall.price} NTD\nTOTAL Charge: ${overall.charge} NTD\nTOTAL Grand: ${overall.total} NTD\nTOTAL Balance: ${overall.balance} NTD`;
-  showSummaryModal("Buyer Summary",summary);
-}
+      let charge = 0;
+      let fullItemName = itemName;
 
-function itemSummary(){
-  const items={};
-  for(let row of tableBody.rows){
-    const item=row.cells[2].innerText + (row.cells[3].innerText? " ("+row.cells[3].innerText+")":"");
-    items[item]=(items[item]||0)+1;
-  }
-  let summary="";
-  for(let [item,count] of Object.entries(items)) summary+=`${item}: ${count}\n`;
-  showSummaryModal("Item Summary",summary);
-}
+      if (category === 'Dry Goods') charge = 50;
+      else if (category === 'Food Court') charge = 20;
+      else if (category === 'Hotdog') {
+        if (hotdogOption === 'w/ Drink') {
+          charge = 30;
+          fullItemName += ' (w/ Drink)';
+        } else if (hotdogOption === 'No Drink') {
+          charge = 20;
+          fullItemName += ' (No Drink)';
+        }
+      }
 
-window.onload=loadData;
-</script>
+      const newItem = { category, item: fullItemName, price, charge, quantity, balance: 0, paid: false };
 
+      if (!orders[buyer]) orders[buyer] = [];
+
+      const existingIndex = orders[buyer].findIndex(o => o.item === fullItemName && o.price === price && o.charge === charge);
+      if (existingIndex >= 0) {
+        orders[buyer][existingIndex].quantity += quantity;
+      } else {
+        orders[buyer].push(newItem);
+      }
+
+      localStorage.setItem('orders', JSON.stringify(orders));
+      renderTable();
+      closeAddItem();
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector('#ordersTable tbody');
+      tbody.innerHTML = '';
+      let totalCharge = 0, totalQty = 0, grandTotal = 0;
+
+      for (const buyer in orders) {
+        let buyerCharge = 0, buyerQty = 0, buyerTotal = 0, buyerBalance = 0;
+
+        orders[buyer].forEach((order, idx) => {
+          const row = document.createElement('tr');
+
+          if (!order.paid) row.style.backgroundColor = '#fff3cd'; // unpaid = yellow
+
+          row.innerHTML = `
+            <td>${idx === 0 ? buyer : ''}</td>
+            <td>${order.category}</td>
+            <td>${order.item}</td>
+            <td contenteditable="true" onblur="updateValue('${buyer}', ${idx}, 'price', this.innerText)">${order.price}</td>
+            <td contenteditable="true" onblur="updateValue('${buyer}', ${idx}, 'charge', this.innerText)">${order.charge}</td>
+            <td contenteditable="true" onblur="updateValue('${buyer}', ${idx}, 'quantity', this.innerText)">${order.quantity}</td>
+            <td>${(order.price + order.charge) * order.quantity}</td>
+            <td contenteditable="true" onblur="updateValue('${buyer}', ${idx}, 'balance', this.innerText)" style="color:${order.balance < 0 ? 'red' : 'black'}">${order.balance || 0}</td>
+            <td><input type="checkbox" ${order.paid ? 'checked' : ''} onchange="togglePaid('${buyer}', ${idx}, this.checked)"></td>
+            <td><button onclick="deleteItem('${buyer}', ${idx})">Delete</button></td>
+          `;
+          tbody.appendChild(row);
+
+          buyerCharge += order.charge * order.quantity;
+          buyerQty += order.quantity;
+          buyerTotal += (order.price + order.charge) * order.quantity;
+          buyerBalance += order.balance || 0;
+
+          totalCharge += order.charge * order.quantity;
+          totalQty += order.quantity;
+          grandTotal += (order.price + order.charge) * order.quantity;
+        });
+
+        const subtotalRow = document.createElement('tr');
+        const status = orders[buyer].every(o => o.paid) ? 'Paid' : 'Unpaid';
+        subtotalRow.className = 'subtotal-row';
+        subtotalRow.innerHTML = `
+          <td colspan="3">Subtotal for ${buyer}</td>
+          <td>-</td>
+          <td>${buyerCharge}</td>
+          <td>${buyerQty}</td>
+          <td>${buyerTotal}</td>
+          <td style="color:${buyerBalance < 0 ? 'red' : 'black'}">${buyerBalance}</td>
+          <td colspan="2">${status}</td>
+        `;
+        tbody.appendChild(subtotalRow);
+      }
+
+      document.getElementById('totalCharge').innerText = totalCharge;
+      document.getElementById('totalQty').innerText = totalQty;
+      document.getElementById('grandTotal').innerText = grandTotal;
+    }
+
+    function updateValue(buyer, idx, field, value) {
+      if (field === 'quantity') orders[buyer][idx][field] = parseInt(value) || 1;
+      else orders[buyer][idx][field] = parseFloat(value) || 0;
+      localStorage.setItem('orders', JSON.stringify(orders));
+      renderTable();
+    }
+
+    function togglePaid(buyer, idx, checked) {
+      orders[buyer][idx].paid = checked;
+      localStorage.setItem('orders', JSON.stringify(orders));
+      renderTable();
+    }
+
+    function deleteItem(buyer, idx) {
+      orders[buyer].splice(idx, 1);
+      if (orders[buyer].length === 0) delete orders[buyer];
+      localStorage.setItem('orders', JSON.stringify(orders));
+      renderTable();
+    }
+
+    function openSummary() {
+      let html = '<table style="width:100%; border-collapse:collapse; font-size:12px;">';
+      html += '<tr style="background:#007bff; color:white;"><th>Buyer</th><th>Total (NTD)</th><th>Balance</th><th>Status</th></tr>';
+      for (const buyer in orders) {
+        let buyerTotal = orders[buyer].reduce((s, o) => s + (o.price + o.charge) * o.quantity, 0);
+        let buyerBalance = orders[buyer].reduce((s, o) => s + (o.balance || 0), 0);
+        let status = orders[buyer].every(o => o.paid) ? 'Paid' : 'Unpaid';
+        html += `<tr>
+          <td>${buyer}</td>
+          <td>${buyerTotal}</td>
+          <td>${buyerBalance}</td>
+          <td>${status}</td>
+        </tr>`;
+      }
+      html += '</table>';
+      document.getElementById('summaryContent').innerHTML = html;
+      document.getElementById('summaryModal').classList.add('active');
+    }
+
+    function closeSummary() {
+      document.getElementById('summaryModal').classList.remove('active');
+    }
+
+    function openItemSummary() {
+      let items = {};
+      for (const buyer in orders) {
+        orders[buyer].forEach(o => {
+          items[o.item] = (items[o.item] || 0) + o.quantity;
+        });
+      }
+      let text = '';
+      for (const item in items) text += `${item}: ${items[item]}\n`;
+      document.getElementById('itemSummaryContent').innerText = text;
+      document.getElementById('itemSummaryModal').classList.add('active');
+    }
+
+    function closeItemSummary() {
+      document.getElementById('itemSummaryModal').classList.remove('active');
+    }
+
+    renderTable();
+  </script>
 </body>
 </html>
