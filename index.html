@@ -10,7 +10,7 @@
       margin: 0;
       padding: 5px;
       background: #f4f4f9;
-      overflow: hidden;
+      overflow: hidden; /* prevent whole page scroll */
     }
     h2 {
       margin: 5px 0;
@@ -20,6 +20,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
+      table-layout: fixed; /* keeps alignment */
     }
     th, td {
       border: 1px solid #ddd;
@@ -55,6 +56,26 @@
       text-align: center;
       margin: 5px 0;
     }
+
+    /* scrollable table */
+    .table-container {
+      max-height: 60vh; /* adjust height as needed */
+      overflow-y: auto;
+      border: 1px solid #ddd;
+    }
+    #ordersTable thead, 
+    #ordersTable tfoot {
+      background: white;
+      position: sticky;
+      z-index: 2;
+    }
+    #ordersTable thead {
+      top: 0;
+    }
+    #ordersTable tfoot {
+      bottom: 0;
+    }
+
     .overlay {
       display: none;
       position: fixed;
@@ -119,32 +140,34 @@
     <button onclick="openItemSummary()">Item Summary</button>
   </div>
 
-  <table id="ordersTable">
-    <thead>
-      <tr>
-        <th>Buyer</th>
-        <th>Category</th>
-        <th>Item</th>
-        <th>Price (NTD)</th>
-        <th>Charge (NTD)</th>
-        <th>Quantity</th>
-        <th>Total (NTD)</th>
-        <th>Balance</th>
-        <th>Paid</th>
-        <th>Delete</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-    <tfoot>
-      <tr>
-        <td colspan="4"><b>Totals</b></td>
-        <td id="totalCharge">0</td>
-        <td id="totalQty">0</td>
-        <td id="grandTotal">0</td>
-        <td colspan="3"></td>
-      </tr>
-    </tfoot>
-  </table>
+  <div class="table-container">
+    <table id="ordersTable">
+      <thead>
+        <tr>
+          <th>Buyer</th>
+          <th>Category</th>
+          <th>Item</th>
+          <th>Price (NTD)</th>
+          <th>Charge (NTD)</th>
+          <th>Quantity</th>
+          <th>Total (NTD)</th>
+          <th>Balance</th>
+          <th>Paid</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4"><b>Totals</b></td>
+          <td id="totalCharge">0</td>
+          <td id="totalQty">0</td>
+          <td id="grandTotal">0</td>
+          <td colspan="3"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
 
   <!-- Add Item Modal -->
   <div class="overlay" id="addItemModal">
