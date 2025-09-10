@@ -10,52 +10,12 @@
       margin: 0;
       padding: 5px;
       background: #f4f4f9;
-      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    h2 {
-      margin: 5px 0;
-      text-align: center;
-    }
-    .table-container {
-      max-height: 60vh;
-      overflow-y: auto;
-      overflow-x: auto;
-      border: 1px solid #ddd;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      table-layout: fixed;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 4px;
-      text-align: center;
-      word-wrap: break-word;
-      white-space: normal;
-    }
-    th {
-      background: #007bff;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
-    tfoot {
-      background: #e0e0e0;
-      position: sticky;
-      bottom: 0;
-      z-index: 2;
-      font-weight: bold;
-    }
-    tr:nth-child(even) {
-      background: #f9f9f9;
-    }
-    .subtotal-row {
-      background: #e0e0e0;
-      font-weight: bold;
-    }
+    h2 { margin: 5px 0; text-align: center; }
+    .controls { text-align: center; margin: 5px 0; }
     button {
       padding: 6px 10px;
       margin: 2px;
@@ -66,14 +26,28 @@
       font-size: 12px;
       cursor: pointer;
     }
-    button:hover {
-      background: #0056b3;
+    button:hover { background: #0056b3; }
+    .table-container { flex: 1; overflow-y: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      table-layout: fixed;
+      word-wrap: break-word;
     }
-    .summary-btns {
+    th, td {
+      border: 1px solid #ddd;
+      padding: 4px;
       text-align: center;
-      margin: 5px 0;
+      word-break: break-word;
     }
-    .overlay {
+    th { background: #007bff; color: white; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    .subtotal-row { background: #e0e0e0; font-weight: bold; }
+    tfoot td { font-weight: bold; background: #ddd; }
+
+    /* Modals */
+    .modal {
       display: none;
       position: fixed;
       top: 0; left: 0;
@@ -83,64 +57,63 @@
       align-items: center;
       z-index: 1000;
     }
-    .overlay.active {
-      display: flex;
-    }
-    .card {
+    .modal.active { display: flex; }
+    .modal-content {
       background: white;
       padding: 15px;
       border-radius: 10px;
       width: 95%;
-      max-width: 400px;
+      max-width: 500px;
       max-height: 90vh;
       overflow-y: auto;
-    }
-    .card h3 {
-      margin-top: 0;
-    }
-    .form-group {
-      margin-bottom: 8px;
-    }
-    label {
-      display: block;
       font-size: 12px;
-      margin-bottom: 3px;
     }
-    input[type="text"], input[type="number"] {
+    .modal-content h3, .modal-content h2 { margin-top: 0; }
+    .close { float: right; font-size: 18px; cursor: pointer; }
+    .modal-content table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+    .modal-content th, .modal-content td {
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: center;
+      word-break: break-word;
+    }
+    #itemSummaryContent, #summaryContent, #archiveDetailsContent, #archiveList {
+      white-space: pre-wrap;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .form-group { margin-bottom: 8px; }
+    label { display: block; margin-bottom: 3px; font-size: 12px; }
+    input[type=text], input[type=number], select {
       width: 100%;
       padding: 5px;
       font-size: 12px;
       box-sizing: border-box;
     }
-    .actions {
-      text-align: right;
-      margin-top: 10px;
-    }
+    .actions { text-align: right; margin-top: 10px; }
     @media (max-width: 600px) {
-      body { font-size: 10px; }
-      table { font-size: 10px; }
-      th, td { padding: 2px; }
-      button { font-size: 10px; padding: 4px 6px; }
-    }
-    @media (max-width: 400px) {
-      body { font-size: 9px; }
-      table { font-size: 9px; }
-      th, td { padding: 1px; }
-    }
-    #itemSummaryContent {
-      white-space: pre-wrap;
-      font-size: 12px;
-      line-height: 1.4;
+      body { font-size: 11px; }
+      table { font-size: 11px; }
+      button { font-size: 11px; padding: 5px 8px; }
+      input, select { font-size: 11px; }
     }
   </style>
 </head>
 <body>
   <h2>Order-Hub</h2>
 
-  <div class="summary-btns">
+  <div class="controls">
     <button onclick="openAddItem()">Add Item</button>
     <button onclick="openSummary()">Generate Summary</button>
     <button onclick="openItemSummary()">Item Summary</button>
+    <button onclick="archiveOrders()">Archive Orders</button>
+    <button onclick="openArchive()">View Archive</button>
   </div>
 
   <div class="table-container">
@@ -152,8 +125,7 @@
           <th>Item</th>
           <th>Price (NTD)</th>
           <th>Charge (NTD)</th>
-          <th>Quantity</th>
-          <th>Total Price</th>
+          <th>Qty</th>
           <th>Total (NTD)</th>
           <th>Balance</th>
           <th>Paid</th>
@@ -163,20 +135,20 @@
       <tbody></tbody>
       <tfoot>
         <tr>
-          <td colspan="5"><b>Totals</b></td>
-          <td id="totalQty">0</td>
-          <td id="grandTotalPrice">0</td>
+          <td colspan="4">Totals</td>
           <td id="totalCharge">0</td>
+          <td id="totalQty">0</td>
           <td id="grandTotal">0</td>
-          <td colspan="2"></td>
+          <td colspan="3"></td>
         </tr>
       </tfoot>
     </table>
   </div>
 
   <!-- Add Item Modal -->
-  <div class="overlay" id="addItemModal">
-    <div class="card">
+  <div class="modal" id="addItemModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAddItem()">&times;</span>
       <h3>Add Item</h3>
       <div class="form-group">
         <label>Buyer Name</label>
@@ -184,18 +156,23 @@
       </div>
       <div class="form-group">
         <label>Category</label>
-        <label><input type="radio" name="category" value="Dry Goods"> Dry Goods</label>
-        <label><input type="radio" name="category" value="Food Court"> Food Court</label>
-        <label><input type="radio" name="category" value="Hotdog"> Hotdog</label>
+        <select id="categorySelect">
+          <option value="" disabled selected>Select Category</option>
+          <option value="Dry Goods">Dry Goods</option>
+          <option value="Food Court">Food Court</option>
+          <option value="Hotdog">Hotdog</option>
+        </select>
+      </div>
+      <div class="form-group" id="hotdogOptions" style="display:none;">
+        <label>Hotdog Options</label>
+        <select id="hotdogOptionSelect">
+          <option value="w/ Drink">With Drink</option>
+          <option value="No Drink">No Drink</option>
+        </select>
       </div>
       <div class="form-group">
         <label>Item Name</label>
         <input type="text" id="itemNameInput">
-      </div>
-      <div class="form-group" id="hotdogOptions" style="display:none;">
-        <label>Hotdog Options</label>
-        <label><input type="radio" name="hotdogOption" value="w/ Drink"> With Drink</label>
-        <label><input type="radio" name="hotdogOption" value="No Drink"> No Drink</label>
       </div>
       <div class="form-group">
         <label>Price (NTD)</label>
@@ -213,206 +190,192 @@
   </div>
 
   <!-- Buyer Summary Modal -->
-  <div class="overlay" id="summaryModal">
-    <div class="card" style="max-height:none; overflow-y:visible;">
+  <div class="modal" id="summaryModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeSummary()">&times;</span>
       <h3>Buyer Summary</h3>
       <div id="summaryContent"></div>
-      <div class="actions">
-        <button onclick="closeSummary()">Close</button>
-      </div>
     </div>
   </div>
 
   <!-- Item Summary Modal -->
-  <div class="overlay" id="itemSummaryModal">
-    <div class="card" style="max-height:none; overflow-y:visible;">
+  <div class="modal" id="itemSummaryModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeItemSummary()">&times;</span>
       <h3>Item Summary</h3>
       <div id="itemSummaryContent"></div>
-      <div class="actions">
-        <button onclick="closeItemSummary()">Close</button>
-      </div>
+    </div>
+  </div>
+
+  <!-- Archive List Modal -->
+  <div class="modal" id="archiveModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeArchive()">&times;</span>
+      <h2>Archived Orders</h2>
+      <div id="archiveList"></div>
+    </div>
+  </div>
+
+  <!-- Archive Details Modal -->
+  <div class="modal" id="archiveDetailsModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeArchiveDetails()">&times;</span>
+      <h3>Archive Details</h3>
+      <div id="archiveDetailsContent"></div>
     </div>
   </div>
 
   <script>
     let orders = JSON.parse(localStorage.getItem('orders')) || {};
+    let archive = JSON.parse(localStorage.getItem('archive')) || [];
 
-    function openAddItem() {
-      document.getElementById('addItemModal').classList.add('active');
-    }
-    function closeAddItem() {
-      document.getElementById('addItemModal').classList.remove('active');
-    }
+    function openAddItem(){document.getElementById('addItemModal').classList.add('active');}
+    function closeAddItem(){document.getElementById('addItemModal').classList.remove('active');}
 
-    document.querySelectorAll('input[name="category"]').forEach(radio => {
-      radio.addEventListener('change', () => {
-        document.getElementById('hotdogOptions').style.display = 
-          radio.value === 'Hotdog' ? 'block' : 'none';
-      });
+    document.getElementById('categorySelect').addEventListener('change', ()=>{
+      document.getElementById('hotdogOptions').style.display = 
+        (document.getElementById('categorySelect').value==='Hotdog')?'block':'none';
     });
 
-    function saveItem() {
+    function saveItem(){
       const buyer = document.getElementById('buyerNameInput').value.trim();
-      const category = document.querySelector('input[name="category"]:checked')?.value;
+      const category = document.getElementById('categorySelect').value;
       const itemName = document.getElementById('itemNameInput').value.trim();
-      const hotdogOption = document.querySelector('input[name="hotdogOption"]:checked')?.value;
+      const hotdogOption = document.getElementById('hotdogOptionSelect')?.value;
       const price = parseFloat(document.getElementById('priceInput').value) || 0;
       const quantity = parseInt(document.getElementById('quantityInput').value) || 1;
+      if(!buyer || !category || !itemName) return alert('Please fill all fields');
 
-      if (!buyer || !category || !itemName) return alert('Please fill all fields');
-
-      let charge = 0;
-      let fullItemName = itemName;
-
-      if (category === 'Dry Goods') charge = 50;
-      else if (category === 'Food Court') charge = 20;
-      else if (category === 'Hotdog') {
-        if (hotdogOption === 'w/ Drink') {
-          charge = 30;
-          fullItemName += ' (w/ Drink)';
-        } else if (hotdogOption === 'No Drink') {
-          charge = 20;
-          fullItemName += ' (No Drink)';
-        }
+      let charge=0, fullItemName=itemName;
+      if(category==='Dry Goods') charge=50;
+      else if(category==='Food Court') charge=20;
+      else if(category==='Hotdog'){
+        if(hotdogOption==='w/ Drink'){charge=30; fullItemName+=' (w/ Drink)';}
+        else if(hotdogOption==='No Drink'){charge=20; fullItemName+=' (No Drink)';}
       }
 
-      const newItem = { category, item: fullItemName, price, charge, quantity, balance: 0, paid: false };
-
-      if (!orders[buyer]) orders[buyer] = [];
-
-      const existingIndex = orders[buyer].findIndex(o => o.item === fullItemName && o.price === price && o.charge === charge);
-      if (existingIndex >= 0) {
-        orders[buyer][existingIndex].quantity += quantity;
-      } else {
-        orders[buyer].push(newItem);
-      }
+      const newItem={category,item:fullItemName,price,charge,quantity,balance:0,paid:false};
+      if(!orders[buyer]) orders[buyer]=[];
+      const idx = orders[buyer].findIndex(o=>o.item===fullItemName && o.price===price && o.charge===charge);
+      if(idx>=0){orders[buyer][idx].quantity += quantity;}
+      else orders[buyer].push(newItem);
 
       localStorage.setItem('orders', JSON.stringify(orders));
       renderTable();
       closeAddItem();
     }
 
-    function renderTable() {
+    function renderTable(){
       const tbody = document.querySelector('#ordersTable tbody');
-      tbody.innerHTML = '';
-      let totalCharge = 0, totalQty = 0, grandTotal = 0, grandTotalPrice = 0;
-
-      for (const buyer in orders) {
-        let buyerCharge = 0, buyerQty = 0, buyerTotal = 0, buyerBalance = 0;
-
-        orders[buyer].forEach((order, idx) => {
-          const row = document.createElement('tr');
-
-          const totalPrice = order.price * order.quantity;
-          const total = (order.price + order.charge) * order.quantity;
-
-          if (!order.paid) row.style.backgroundColor = '#fff3cd'; // unpaid = yellow
-
-          row.innerHTML = `
-            <td>${idx === 0 ? buyer : ''}</td>
-            <td>${order.category}</td>
-            <td>${order.item}</td>
-            <td contenteditable="true" onblur="updateValue('${buyer}', ${idx}, 'price', this.innerText)">${order.price}</td>
-            <td contenteditable="true" onblur="updateValue('${buyer}', ${idx}, 'charge', this.innerText)">${order.charge}</td>
-            <td contenteditable="true" onblur="updateValue('${buyer}', ${idx}, 'quantity', this.innerText)">${order.quantity}</td>
-            <td>${totalPrice}</td>
-            <td>${total}</td>
-            <td contenteditable="true" onblur="updateValue('${buyer}', ${idx}, 'balance', this.innerText)" style="color:${order.balance < 0 ? 'red' : 'black'}">${order.balance || 0}</td>
-            <td><input type="checkbox" ${order.paid ? 'checked' : ''} onchange="togglePaid('${buyer}', ${idx}, this.checked)"></td>
-            <td><button onclick="deleteItem('${buyer}', ${idx})">Delete</button></td>
-          `;
+      tbody.innerHTML='';
+      let totalCharge=0, totalQty=0, grandTotal=0;
+      for(const buyer in orders){
+        let buyerCharge=0, buyerQty=0, buyerTotal=0, buyerBalance=0;
+        orders[buyer].forEach((o,idx)=>{
+          const row=document.createElement('tr');
+          if(!o.paid) row.style.backgroundColor='#fff3cd';
+          row.innerHTML=`<td>${idx===0?buyer:''}</td>
+            <td>${o.category}</td>
+            <td>${o.item}</td>
+            <td contenteditable onblur="updateValue('${buyer}',${idx},'price',this.innerText)">${o.price}</td>
+            <td contenteditable onblur="updateValue('${buyer}',${idx},'charge',this.innerText)">${o.charge}</td>
+            <td contenteditable onblur="updateValue('${buyer}',${idx},'quantity',this.innerText)">${o.quantity}</td>
+            <td>${(o.price+o.charge)*o.quantity}</td>
+            <td contenteditable onblur="updateValue('${buyer}',${idx},'balance',this.innerText)" style="color:${o.balance<0?'red':'black'}">${o.balance||0}</td>
+            <td><input type="checkbox" ${o.paid?'checked':''} onchange="togglePaid('${buyer}',${idx},this.checked)"></td>
+            <td><button onclick="deleteItem('${buyer}',${idx})">Delete</button></td>`;
           tbody.appendChild(row);
-
-          buyerCharge += order.charge * order.quantity;
-          buyerQty += order.quantity;
-          buyerTotal += total;
-          buyerBalance += order.balance || 0;
-          grandTotalPrice += totalPrice;
-          totalCharge += order.charge * order.quantity;
-          totalQty += order.quantity;
-          grandTotal += total;
+          buyerCharge += o.charge*o.quantity;
+          buyerQty += o.quantity;
+          buyerTotal += (o.price+o.charge)*o.quantity;
+          buyerBalance += o.balance||0;
+          totalCharge += o.charge*o.quantity;
+          totalQty += o.quantity;
+          grandTotal += (o.price+o.charge)*o.quantity;
         });
-
         const subtotalRow = document.createElement('tr');
-        const status = orders[buyer].every(o => o.paid) ? 'Paid' : 'Unpaid';
-        subtotalRow.className = 'subtotal-row';
-        subtotalRow.innerHTML = `
-          <td colspan="5">Subtotal for ${buyer}</td>
-          <td>${buyerQty}</td>
-          <td>${orders[buyer].reduce((s, o) => s + o.price * o.quantity, 0)}</td>
-          <td>${buyerCharge}</td>
-          <td>${buyerTotal}</td>
-          <td style="color:${buyerBalance < 0 ? 'red' : 'black'}">${buyerBalance}</td>
-          <td>${status}</td>
-        `;
+        subtotalRow.className='subtotal-row';
+        subtotalRow.innerHTML=`<td colspan="3">Subtotal for ${buyer}</td><td>-</td>
+          <td>${buyerCharge}</td><td>${buyerQty}</td><td>${buyerTotal}</td>
+          <td style="color:${buyerBalance<0?'red':'black'}">${buyerBalance}</td>
+          <td colspan="2">${orders[buyer].every(o=>o.paid)?'Paid':'Unpaid'}</td>`;
         tbody.appendChild(subtotalRow);
       }
-
-      document.getElementById('totalQty').innerText = totalQty;
-      document.getElementById('grandTotalPrice').innerText = grandTotalPrice;
-      document.getElementById('totalCharge').innerText = totalCharge;
-      document.getElementById('grandTotal').innerText = grandTotal;
+      document.getElementById('totalCharge').innerText=totalCharge;
+      document.getElementById('totalQty').innerText=totalQty;
+      document.getElementById('grandTotal').innerText=grandTotal;
     }
 
-    function updateValue(buyer, idx, field, value) {
-      if (field === 'quantity') orders[buyer][idx][field] = parseInt(value) || 1;
-      else orders[buyer][idx][field] = parseFloat(value) || 0;
-      localStorage.setItem('orders', JSON.stringify(orders));
+    function updateValue(buyer,idx,field,value){
+      if(field==='quantity') orders[buyer][idx][field]=parseInt(value)||1;
+      else orders[buyer][idx][field]=parseFloat(value)||0;
+      localStorage.setItem('orders',JSON.stringify(orders));
       renderTable();
     }
+    function togglePaid(buyer,idx,checked){orders[buyer][idx].paid=checked;localStorage.setItem('orders',JSON.stringify(orders));renderTable();}
+    function deleteItem(buyer,idx){orders[buyer].splice(idx,1);if(orders[buyer].length===0) delete orders[buyer];localStorage.setItem('orders',JSON.stringify(orders));renderTable();}
 
-    function togglePaid(buyer, idx, checked) {
-      orders[buyer][idx].paid = checked;
-      localStorage.setItem('orders', JSON.stringify(orders));
-      renderTable();
-    }
-
-    function deleteItem(buyer, idx) {
-      orders[buyer].splice(idx, 1);
-      if (orders[buyer].length === 0) delete orders[buyer];
-      localStorage.setItem('orders', JSON.stringify(orders));
-      renderTable();
-    }
-
-    function openSummary() {
-      let html = '<table style="width:100%; border-collapse:collapse; font-size:12px;">';
-      html += '<tr style="background:#007bff; color:white;"><th>Buyer</th><th>Total (NTD)</th><th>Balance</th><th>Status</th></tr>';
-      for (const buyer in orders) {
-        let buyerTotal = orders[buyer].reduce((s, o) => s + (o.price + o.charge) * o.quantity, 0);
-        let buyerBalance = orders[buyer].reduce((s, o) => s + (o.balance || 0), 0);
-        let status = orders[buyer].every(o => o.paid) ? 'Paid' : 'Unpaid';
-        html += `<tr>
-          <td>${buyer}</td>
-          <td>${buyerTotal}</td>
-          <td>${buyerBalance}</td>
-          <td>${status}</td>
-        </tr>`;
+    function openSummary(){
+      let html='<table><tr style="background:#007bff;color:white;"><th>Buyer</th><th>Total</th><th>Balance</th><th>Status</th></tr>';
+      for(const buyer in orders){
+        let t = orders[buyer].reduce((s,o)=>s+(o.price+o.charge)*o.quantity,0);
+        let b = orders[buyer].reduce((s,o)=>s+(o.balance||0),0);
+        let s = orders[buyer].every(o=>o.paid)?'Paid':'Unpaid';
+        html+=`<tr><td>${buyer}</td><td>${t}</td><td>${b}</td><td>${s}</td></tr>`;
       }
-      html += '</table>';
-      document.getElementById('summaryContent').innerHTML = html;
+      html+='</table>';
+      document.getElementById('summaryContent').innerHTML=html;
       document.getElementById('summaryModal').classList.add('active');
     }
-
-    function closeSummary() {
-      document.getElementById('summaryModal').classList.remove('active');
-    }
-
-    function openItemSummary() {
-      let items = {};
-      for (const buyer in orders) {
-        orders[buyer].forEach(o => {
-          items[o.item] = (items[o.item] || 0) + o.quantity;
-        });
-      }
-      let text = '';
-      for (const item in items) text += `${item}: ${items[item]}\n`;
-      document.getElementById('itemSummaryContent').innerText = text;
+    function closeSummary(){document.getElementById('summaryModal').classList.remove('active');}
+    function openItemSummary(){
+      let items={};for(const buyer in orders){orders[buyer].forEach(o=>{items[o.item]=(items[o.item]||0)+o.quantity;});}
+      let text='';for(const i in items) text+=`${i}: ${items[i]}\n`;
+      document.getElementById('itemSummaryContent').innerText=text;
       document.getElementById('itemSummaryModal').classList.add('active');
     }
+    function closeItemSummary(){document.getElementById('itemSummaryModal').classList.remove('active');}
 
-    function closeItemSummary() {
-      document.getElementById('itemSummaryModal').classList.remove('active');
+    function archiveOrders(){
+      const date=new Date().toLocaleString();
+      archive.push({date,orders});
+      localStorage.setItem('archive',JSON.stringify(archive));
+      orders={};
+      localStorage.setItem('orders',JSON.stringify(orders));
+      renderTable();
+      alert('Orders archived successfully!');
     }
+
+    function openArchive(){
+      let html='';
+      archive.forEach((a,i)=>{
+        html+=`<div><b>${a.date}</b> <button onclick="openArchiveDetails(${i})">View Details</button></div>`;
+      });
+      document.getElementById('archiveList').innerHTML=html;
+      document.getElementById('archiveModal').classList.add('active');
+    }
+    function closeArchive(){document.getElementById('archiveModal').classList.remove('active');}
+
+    function openArchiveDetails(idx){
+      let data=archive[idx].orders;
+      let html='<table><tr><th>Buyer</th><th>Category</th><th>Item</th><th>Price</th><th>Charge</th><th>Qty</th><th>Total</th><th>Balance</th><th>Paid</th></tr>';
+      let chargeTotal=0;
+      for(const buyer in data){
+        data[buyer].forEach(o=>{
+          html+=`<tr>
+            <td>${buyer}</td><td>${o.category}</td><td>${o.item}</td><td>${o.price}</td>
+            <td>${o.charge}</td><td>${o.quantity}</td><td>${(o.price+o.charge)*o.quantity}</td>
+            <td>${o.balance}</td><td>${o.paid?'Yes':'No'}</td>
+          </tr>`;
+          chargeTotal+=o.charge*o.quantity;
+        });
+      }
+      html+=`<tr><td colspan="4">Total Charge</td><td colspan="5">${chargeTotal}</td></tr>`;
+      html+='</table>';
+      document.getElementById('archiveDetailsContent').innerHTML=html;
+      document.getElementById('archiveDetailsModal').classList.add('active');
+    }
+    function closeArchiveDetails(){document.getElementById('archiveDetailsModal').classList.remove('active');}
 
     renderTable();
   </script>
