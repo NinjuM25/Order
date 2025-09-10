@@ -55,10 +55,6 @@
       text-align: center;
       margin: 5px 0;
     }
-    .table-container {
-      height: 60vh;
-      overflow-y: auto;
-    }
     .overlay {
       display: none;
       position: fixed;
@@ -69,56 +65,47 @@
       align-items: center;
       z-index: 1000;
     }
-    .overlay.active {
-      display: flex;
-    }
+    .overlay.active { display: flex; }
     .card {
       background: white;
       padding: 15px;
       border-radius: 10px;
       width: 95%;
-      max-width: 500px;
+      max-width: 600px;
       max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .card h3 {
-      margin-top: 0;
-      flex-shrink: 0;
-    }
-    .modal-content {
-      flex: 1;
       overflow-y: auto;
-      margin-top: 10px;
+      box-sizing: border-box;
     }
-    .form-group {
-      margin-bottom: 8px;
-    }
+    .card h3 { margin-top: 0; }
+    .form-group { margin-bottom: 8px; }
     label {
       display: block;
       font-size: 12px;
       margin-bottom: 3px;
     }
-    input[type="text"], input[type="number"], select {
+    input, select {
       width: 100%;
       padding: 5px;
       font-size: 12px;
       box-sizing: border-box;
     }
-    .actions {
-      text-align: right;
-      margin-top: 10px;
-      flex-shrink: 0;
-    }
+    .actions { text-align: right; margin-top: 10px; }
     @media (max-width: 600px) {
-      body { font-size: 11px; }
-      table { font-size: 11px; }
-      button { font-size: 11px; padding: 5px 8px; }
+      body, table, button, input, select { font-size: 11px; }
+      button { padding: 5px 8px; }
     }
-    #itemSummaryContent {
+    #ordersContainer {
+      height: 60vh;
+      overflow-y: auto;
+      background: white;
+      border: 1px solid #ccc;
+    }
+    #itemSummaryContent, #summaryContent, #archiveList, #archiveDetailsContent {
       white-space: pre-wrap;
       font-size: 12px;
       line-height: 1.4;
+      max-height: 60vh;
+      overflow-y: auto;
     }
   </style>
 </head>
@@ -129,11 +116,11 @@
     <button onclick="openAddItem()">Add Item</button>
     <button onclick="openSummary()">Generate Summary</button>
     <button onclick="openItemSummary()">Item Summary</button>
-    <button onclick="archiveOrders()">Archive Orders</button>
     <button onclick="openArchive()">View Archive</button>
+    <button onclick="archiveOrders()">Archive Orders</button>
   </div>
 
-  <div class="table-container">
+  <div id="ordersContainer">
     <table id="ordersTable">
       <thead>
         <tr>
@@ -166,40 +153,30 @@
   <div class="overlay" id="addItemModal">
     <div class="card">
       <h3>Add Item</h3>
-      <div class="modal-content">
-        <div class="form-group">
-          <label>Buyer Name</label>
-          <input type="text" id="buyerNameInput">
-        </div>
-        <div class="form-group">
-          <label>Category</label>
-          <select id="categorySelect" onchange="toggleHotdogOptions()">
-            <option value="">-- Select Category --</option>
-            <option value="Dry Goods">Dry Goods</option>
-            <option value="Food Court">Food Court</option>
-            <option value="Hotdog">Hotdog</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Item Name</label>
-          <input type="text" id="itemNameInput">
-        </div>
-        <div class="form-group" id="hotdogOptions" style="display:none;">
-          <label>Hotdog Options</label>
-          <select id="hotdogSelect">
-            <option value="">-- Select Option --</option>
-            <option value="w/ Drink">With Drink</option>
-            <option value="No Drink">No Drink</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Price (NTD)</label>
-          <input type="number" id="priceInput" min="0">
-        </div>
-        <div class="form-group">
-          <label>Quantity</label>
-          <input type="number" id="quantityInput" min="1" value="1">
-        </div>
+      <div class="form-group">
+        <label>Buyer Name</label>
+        <input type="text" id="buyerNameInput">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="categoryInput">
+          <option value="">Select Category</option>
+          <option value="Dry Goods">Dry Goods</option>
+          <option value="Food Court">Food Court</option>
+          <option value="Hotdog">Hotdog</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Item Name</label>
+        <input type="text" id="itemNameInput">
+      </div>
+      <div class="form-group">
+        <label>Price (NTD)</label>
+        <input type="number" id="priceInput" min="0">
+      </div>
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" id="quantityInput" min="1" value="1">
       </div>
       <div class="actions">
         <button onclick="saveItem()">Save</button>
@@ -212,7 +189,7 @@
   <div class="overlay" id="summaryModal">
     <div class="card">
       <h3>Buyer Summary</h3>
-      <div class="modal-content" id="summaryContent"></div>
+      <div id="summaryContent"></div>
       <div class="actions">
         <button onclick="closeSummary()">Close</button>
       </div>
@@ -223,18 +200,18 @@
   <div class="overlay" id="itemSummaryModal">
     <div class="card">
       <h3>Item Summary</h3>
-      <div class="modal-content" id="itemSummaryContent"></div>
+      <div id="itemSummaryContent"></div>
       <div class="actions">
         <button onclick="closeItemSummary()">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- Archive List Modal -->
+  <!-- Archive Modal -->
   <div class="overlay" id="archiveModal">
     <div class="card">
       <h3>Archived Orders</h3>
-      <div class="modal-content" id="archiveList"></div>
+      <div id="archiveList"></div>
       <div class="actions">
         <button onclick="closeArchive()">Close</button>
       </div>
@@ -245,7 +222,7 @@
   <div class="overlay" id="archiveDetailsModal">
     <div class="card">
       <h3>Archive Details</h3>
-      <div class="modal-content" id="archiveDetailsContent"></div>
+      <div id="archiveDetailsContent"></div>
       <div class="actions">
         <button onclick="closeArchiveDetails()">Close</button>
       </div>
@@ -254,40 +231,27 @@
 
   <script>
     let orders = JSON.parse(localStorage.getItem('orders')) || {};
-    let archive = JSON.parse(localStorage.getItem('archive')) || [];
+    let archives = JSON.parse(localStorage.getItem('archives')) || {};
 
-    function openAddItem(){document.getElementById('addItemModal').classList.add('active');}
-    function closeAddItem(){document.getElementById('addItemModal').classList.remove('active');}
-
-    function toggleHotdogOptions(){
-      const val=document.getElementById('categorySelect').value;
-      document.getElementById('hotdogOptions').style.display=val==='Hotdog'?'block':'none';
-    }
+    function openAddItem(){ document.getElementById('addItemModal').classList.add('active'); }
+    function closeAddItem(){ document.getElementById('addItemModal').classList.remove('active'); }
 
     function saveItem(){
-      const buyer=document.getElementById('buyerNameInput').value.trim();
-      const category=document.getElementById('categorySelect').value;
-      const itemName=document.getElementById('itemNameInput').value.trim();
-      const hotdogOption=document.getElementById('hotdogSelect').value;
-      const price=parseFloat(document.getElementById('priceInput').value)||0;
-      const quantity=parseInt(document.getElementById('quantityInput').value)||1;
-      if(!buyer||!category||!itemName)return alert('Please fill all fields');
-
-      let charge=0;let fullItemName=itemName;
+      const buyer = document.getElementById('buyerNameInput').value.trim();
+      const category = document.getElementById('categoryInput').value;
+      const itemName = document.getElementById('itemNameInput').value.trim();
+      const price = parseFloat(document.getElementById('priceInput').value)||0;
+      const quantity = parseInt(document.getElementById('quantityInput').value)||1;
+      if(!buyer||!category||!itemName) return alert('Fill all fields');
+      let charge = 0;
       if(category==='Dry Goods') charge=50;
       else if(category==='Food Court') charge=20;
-      else if(category==='Hotdog'){
-        if(hotdogOption==='w/ Drink'){charge=30;fullItemName+=' (w/ Drink)';}
-        else if(hotdogOption==='No Drink'){charge=20;fullItemName+=' (No Drink)';}
-      }
-      const newItem={category,item:fullItemName,price,charge,quantity,balance:0,paid:false};
-      if(!orders[buyer])orders[buyer]=[];
-      const existingIndex=orders[buyer].findIndex(o=>o.item===fullItemName&&o.price===price&&o.charge===charge);
-      if(existingIndex>=0){orders[buyer][existingIndex].quantity+=quantity;}
-      else{orders[buyer].push(newItem);}
+      else if(category==='Hotdog') charge=30;
+      const newItem={category,item:itemName,price,charge,quantity,balance:0,paid:false};
+      if(!orders[buyer]) orders[buyer]=[];
+      orders[buyer].push(newItem);
       localStorage.setItem('orders',JSON.stringify(orders));
-      renderTable();
-      closeAddItem();
+      renderTable(); closeAddItem();
     }
 
     function renderTable(){
@@ -298,7 +262,7 @@
         let buyerCharge=0,buyerQty=0,buyerTotal=0,buyerBalance=0;
         orders[buyer].forEach((order,idx)=>{
           const row=document.createElement('tr');
-          if(!order.paid)row.style.backgroundColor='#fff3cd';
+          if(!order.paid) row.style.backgroundColor='#fff3cd';
           row.innerHTML=`
             <td>${idx===0?buyer:''}</td>
             <td>${order.category}</td>
@@ -307,7 +271,7 @@
             <td contenteditable="true" onblur="updateValue('${buyer}',${idx},'charge',this.innerText)">${order.charge}</td>
             <td contenteditable="true" onblur="updateValue('${buyer}',${idx},'quantity',this.innerText)">${order.quantity}</td>
             <td>${(order.price+order.charge)*order.quantity}</td>
-            <td contenteditable="true" onblur="updateValue('${buyer}',${idx},'balance',this.innerText)" style="color:${order.balance<0?'red':'black'}">${order.balance||0}</td>
+            <td contenteditable="true" onblur="updateValue('${buyer}',${idx},'balance',this.innerText)">${order.balance||0}</td>
             <td><input type="checkbox" ${order.paid?'checked':''} onchange="togglePaid('${buyer}',${idx},this.checked)"></td>
             <td><button onclick="deleteItem('${buyer}',${idx})">Delete</button></td>
           `;
@@ -321,7 +285,6 @@
           grandTotal+=(order.price+order.charge)*order.quantity;
         });
         const subtotalRow=document.createElement('tr');
-        const status=orders[buyer].every(o=>o.paid)?'Paid':'Unpaid';
         subtotalRow.className='subtotal-row';
         subtotalRow.innerHTML=`
           <td colspan="3">Subtotal for ${buyer}</td>
@@ -329,8 +292,8 @@
           <td>${buyerCharge}</td>
           <td>${buyerQty}</td>
           <td>${buyerTotal}</td>
-          <td style="color:${buyerBalance<0?'red':'black'}">${buyerBalance}</td>
-          <td colspan="2">${status}</td>
+          <td>${buyerBalance}</td>
+          <td colspan="2">${orders[buyer].every(o=>o.paid)?'Paid':'Unpaid'}</td>
         `;
         tbody.appendChild(subtotalRow);
       }
@@ -340,70 +303,29 @@
     }
 
     function updateValue(buyer,idx,field,value){
-      if(field==='quantity')orders[buyer][idx][field]=parseInt(value)||1;
+      if(field==='quantity') orders[buyer][idx][field]=parseInt(value)||1;
       else orders[buyer][idx][field]=parseFloat(value)||0;
       localStorage.setItem('orders',JSON.stringify(orders));
       renderTable();
     }
+    function togglePaid(buyer,idx,checked){ orders[buyer][idx].paid=checked; localStorage.setItem('orders',JSON.stringify(orders)); renderTable(); }
+    function deleteItem(buyer,idx){ orders[buyer].splice(idx,1); if(!orders[buyer].length) delete orders[buyer]; localStorage.setItem('orders',JSON.stringify(orders)); renderTable(); }
 
-    function togglePaid(buyer,idx,checked){orders[buyer][idx].paid=checked;localStorage.setItem('orders',JSON.stringify(orders));renderTable();}
-    function deleteItem(buyer,idx){orders[buyer].splice(idx,1);if(orders[buyer].length===0)delete orders[buyer];localStorage.setItem('orders',JSON.stringify(orders));renderTable();}
+    function openSummary(){ let html='<table style="width:100%;border-collapse:collapse;font-size:12px;"><tr style="background:#007bff;color:white;"><th>Buyer</th><th>Total</th><th>Balance</th><th>Status</th></tr>'; for(const b in orders){ let bt=orders[b].reduce((s,o)=>s+(o.price+o.charge)*o.quantity,0); let bb=orders[b].reduce((s,o)=>s+(o.balance||0),0); let st=orders[b].every(o=>o.paid)?'Paid':'Unpaid'; html+=`<tr><td>${b}</td><td>${bt}</td><td>${bb}</td><td>${st}</td></tr>`;} html+='</table>'; document.getElementById('summaryContent').innerHTML=html; document.getElementById('summaryModal').classList.add('active'); }
+    function closeSummary(){ document.getElementById('summaryModal').classList.remove('active'); }
 
-    function openSummary(){
-      let html='<table><tr style="background:#007bff;color:white;"><th>Buyer</th><th>Total</th><th>Balance</th><th>Status</th></tr>';
-      for(const buyer in orders){
-        let t=orders[buyer].reduce((s,o)=>s+(o.price+o.charge)*o.quantity,0);
-        let b=orders[buyer].reduce((s,o)=>s+(o.balance||0),0);
-        let s=orders[buyer].every(o=>o.paid)?'Paid':'Unpaid';
-        html+=`<tr><td>${buyer}</td><td>${t}</td><td>${b}</td><td>${s}</td></tr>`;
-      }
-      html+='</table>';
-      document.getElementById('summaryContent').innerHTML=html;
-      document.getElementById('summaryModal').classList.add('active');
-    }
-    function closeSummary(){document.getElementById('summaryModal').classList.remove('active');}
-    function openItemSummary(){
-      let items={};for(const buyer in orders){orders[buyer].forEach(o=>{items[o.item]=(items[o.item]||0)+o.quantity;});}
-      let text='';for(const i in items)text+=`${i}: ${items[i]}\n`;
-      document.getElementById('itemSummaryContent').innerText=text;
-      document.getElementById('itemSummaryModal').classList.add('active');
-    }
-    function closeItemSummary(){document.getElementById('itemSummaryModal').classList.remove('active');}
+    function openItemSummary(){ let items={}; for(const b in orders){ orders[b].forEach(o=>{items[o.item]=(items[o.item]||0)+o.quantity;}); } let text=''; for(const i in items) text+=`${i}: ${items[i]}\n`; document.getElementById('itemSummaryContent').innerText=text; document.getElementById('itemSummaryModal').classList.add('active'); }
+    function closeItemSummary(){ document.getElementById('itemSummaryModal').classList.remove('active'); }
 
-    function archiveOrders(){
-      const date=new Date().toLocaleString();
-      archive.push({date,orders});
-      localStorage.setItem('archive',JSON.stringify(archive));
-      orders={};
-      localStorage.setItem('orders',JSON.stringify(orders));
-      renderTable();
-      alert('Orders archived successfully!');
-    }
+    function archiveOrders(){ if(Object.keys(orders).length===0) return alert('No orders'); let date=new Date().toLocaleString(); archives[date]=JSON.parse(JSON.stringify(orders)); localStorage.setItem('archives',JSON.stringify(archives)); orders={}; localStorage.setItem('orders',JSON.stringify(orders)); renderTable(); }
+    function openArchive(){ let html='<table style="width:100%;border-collapse:collapse;font-size:12px;"><tr style="background:#007bff;color:white;"><th>Date</th><th>Actions</th></tr>'; for(const d in archives){ html+=`<tr><td>${d}</td><td><button onclick="viewArchiveDetails('${d}')">View</button><button onclick="restoreArchive('${d}')">Restore</button><button onclick="deleteArchive('${d}')">Delete</button></td></tr>`;} html+='</table>'; document.getElementById('archiveList').innerHTML=html; document.getElementById('archiveModal').classList.add('active'); }
+    function closeArchive(){ document.getElementById('archiveModal').classList.remove('active'); }
 
-    function openArchive(){
-      let html='';
-      archive.forEach((a,i)=>{html+=`<div><b>${a.date}</b> <button onclick="openArchiveDetails(${i})">View Details</button></div>`;});
-      document.getElementById('archiveList').innerHTML=html;
-      document.getElementById('archiveModal').classList.add('active');
-    }
-    function closeArchive(){document.getElementById('archiveModal').classList.remove('active');}
+    function viewArchiveDetails(date){ let html='<table style="width:100%;border-collapse:collapse;font-size:12px;"><tr style="background:#007bff;color:white;"><th>Buyer</th><th>Item</th><th>Price</th><th>Charge</th><th>Qty</th><th>Total</th></tr>'; let totalCharge=0; for(const b in archives[date]){ archives[date][b].forEach(o=>{ html+=`<tr><td>${b}</td><td>${o.item}</td><td>${o.price}</td><td>${o.charge}</td><td>${o.quantity}</td><td>${(o.price+o.charge)*o.quantity}</td></tr>`; totalCharge+=o.charge*o.quantity; }); } html+=`<tr class="subtotal-row"><td colspan="3">Total Charge</td><td colspan="3">${totalCharge}</td></tr>`; html+='</table>'; document.getElementById('archiveDetailsContent').innerHTML=html; document.getElementById('archiveDetailsModal').classList.add('active'); }
+    function closeArchiveDetails(){ document.getElementById('archiveDetailsModal').classList.remove('active'); }
 
-    function openArchiveDetails(idx){
-      let data=archive[idx].orders;
-      let html='<table><tr><th>Buyer</th><th>Category</th><th>Item</th><th>Price</th><th>Charge</th><th>Qty</th><th>Total</th><th>Balance</th><th>Paid</th></tr>';
-      let chargeTotal=0;
-      for(const buyer in data){
-        data[buyer].forEach(o=>{
-          html+=`<tr><td>${buyer}</td><td>${o.category}</td><td>${o.item}</td><td>${o.price}</td><td>${o.charge}</td><td>${o.quantity}</td><td>${(o.price+o.charge)*o.quantity}</td><td>${o.balance}</td><td>${o.paid?'Yes':'No'}</td></tr>`;
-          chargeTotal+=o.charge*o.quantity;
-        });
-      }
-      html+=`<tr><td colspan="4">Total Charge</td><td colspan="5">${chargeTotal}</td></tr>`;
-      html+='</table>';
-      document.getElementById('archiveDetailsContent').innerHTML=html;
-      document.getElementById('archiveDetailsModal').classList.add('active');
-    }
-    function closeArchiveDetails(){document.getElementById('archiveDetailsModal').classList.remove('active');}
+    function deleteArchive(date){ delete archives[date]; localStorage.setItem('archives',JSON.stringify(archives)); openArchive(); }
+    function restoreArchive(date){ for(const b in archives[date]){ if(!orders[b]) orders[b]=[]; orders[b]=orders[b].concat(archives[date][b]); } delete archives[date]; localStorage.setItem('orders',JSON.stringify(orders)); localStorage.setItem('archives',JSON.stringify(archives)); renderTable(); openArchive(); }
 
     renderTable();
   </script>
