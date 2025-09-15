@@ -461,11 +461,7 @@
       listDiv.innerHTML = '';
       for (const date in archivedOrders) {
         const div = document.createElement('div');
-        div.style.border = "1px solid #ccc";
-        div.style.margin = "5px 0";
-        div.style.padding = "5px";
-        div.style.borderRadius = "5px";
-        div.style.fontSize = "12px";
+        div.style.margin = '5px 0';
         div.innerHTML = `
           <b>${date}</b>
           <button onclick="viewArchive('${date}')">View</button>
@@ -478,48 +474,57 @@
     }
     function closeArchive() { document.getElementById('archiveModal').classList.remove('active'); }
 
+    // Updated View Archive
     function viewArchive(date) {
       const ordersData = archivedOrders[date];
       let html = '<table style="width:100%; border-collapse:collapse; font-size:12px;">';
-      html += '<tr style="background:#007bff; color:white;"><th>Buyer</th><th>Item</th><th>Qty</th><th>Price</th></tr>';
+      html += '<tr style="background:#007bff; color:white;"><th>Buyer</th><th>Item</th><th>Qty</th><th>Price</th><th>Charge</th><th>Total</th></tr>';
+      
+      let totalCharge = 0;
+
       for (const buyer in ordersData) {
         ordersData[buyer].forEach(o => {
+          let itemTotal = (o.price + o.charge) * o.quantity;
+          let chargeTotal = o.charge * o.quantity;
+          totalCharge += chargeTotal;
+
           html += `<tr>
             <td>${buyer}</td>
             <td>${o.item}</td>
             <td>${o.quantity}</td>
             <td>${o.price}</td>
+            <td>${o.charge}</td>
+            <td>${itemTotal}</td>
           </tr>`;
         });
       }
+
+      html += `<tr style="background:#e0e0e0; font-weight:bold;">
+        <td colspan="4">Total Charge Gained</td>
+        <td colspan="2">${totalCharge}</td>
+      </tr>`;
       html += '</table>';
+
       document.getElementById('archiveDetailsContent').innerHTML = html;
       document.getElementById('archiveDetailsModal').classList.add('active');
     }
+
     function closeArchiveDetails() { document.getElementById('archiveDetailsModal').classList.remove('active'); }
 
     function restoreArchive(date) {
-      orders = archivedOrders[date];
+      orders = JSON.parse(JSON.stringify(archivedOrders[date]));
       localStorage.setItem('orders', JSON.stringify(orders));
-      localStorage.setItem('archivedOrders', JSON.stringify(archivedOrders));
       renderTable();
-      alert('Archive restored! Items also added to suggestions.');
-      for (const buyer in orders) {
-        orders[buyer].forEach(o => {
-          if (!itemSuggestions.includes(o.item)) {
-            itemSuggestions.push(o.item);
-          }
-        });
-      }
-      localStorage.setItem('itemSuggestions', JSON.stringify(itemSuggestions));
+      alert('Archive restored!');
     }
+
     function deleteArchive(date) {
       delete archivedOrders[date];
       localStorage.setItem('archivedOrders', JSON.stringify(archivedOrders));
       openArchive();
     }
 
-    // Init
+    // Initialize
     renderTable();
   </script>
 </body>
