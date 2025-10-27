@@ -149,6 +149,10 @@
           <td id="grandTotal">0</td>
           <td colspan="3"></td>
         </tr>
+        <tr style="background:#ffe0b2; font-weight:bold;">
+          <td colspan="6" style="text-align:right;">Total Price (NTD)</td>
+          <td id="totalPrice" colspan="4">0</td>
+        </tr>
       </tfoot>
     </table>
   </div>
@@ -168,6 +172,8 @@
           <option value="Dry Goods">Dry Goods</option>
           <option value="Food Court">Food Court</option>
           <option value="Hotdog">Hotdog</option>
+          <option value="Frozen Goods">Frozen Goods</option>
+          <option value="Silog">Silog</option>
         </select>
       </div>
       <div class="form-group">
@@ -252,7 +258,6 @@
       "Seafood Chao Fan"
     ];
 
-    // Open/Close Add Item
     function openAddItem() {
       document.getElementById('addItemModal').classList.add('active');
       populateItemSuggestions();
@@ -276,7 +281,6 @@
       });
     }
 
-    // Save Item
     function saveItem() {
       const buyer = document.getElementById('buyerNameInput').value.trim();
       const category = document.getElementById('categoryInput').value;
@@ -300,6 +304,8 @@
           charge = 20;
           fullItemName += ' (No Drink)';
         }
+      } else if (category === 'Frozen Goods' || category === 'Silog') {
+        charge = 40;
       }
 
       const newItem = { category, item: fullItemName, price, charge, quantity, balance: 0, paid: false };
@@ -323,11 +329,10 @@
       closeAddItem();
     }
 
-    // Render Table
     function renderTable() {
       const tbody = document.querySelector('#ordersTable tbody');
       tbody.innerHTML = '';
-      let totalCharge = 0, totalQty = 0, grandTotal = 0;
+      let totalCharge = 0, totalQty = 0, grandTotal = 0, totalPrice = 0;
 
       for (const buyer in orders) {
         let buyerCharge = 0, buyerQty = 0, buyerTotal = 0, buyerBalance = 0;
@@ -357,6 +362,7 @@
           totalCharge += order.charge * order.quantity;
           totalQty += order.quantity;
           grandTotal += (order.price + order.charge) * order.quantity;
+          totalPrice += order.price * order.quantity; // Total Price
         });
 
         const subtotalRow = document.createElement('tr');
@@ -377,9 +383,9 @@
       document.getElementById('totalCharge').innerText = totalCharge;
       document.getElementById('totalQty').innerText = totalQty;
       document.getElementById('grandTotal').innerText = grandTotal;
+      document.getElementById('totalPrice').innerText = totalPrice; // Update total price
     }
 
-    // Update fields
     function updateValue(buyer, idx, field, value) {
       if (field === 'quantity') orders[buyer][idx][field] = parseInt(value) || 1;
       else orders[buyer][idx][field] = parseFloat(value) || 0;
@@ -387,14 +393,12 @@
       renderTable();
     }
 
-    // Toggle paid
     function togglePaid(buyer, idx, checked) {
       orders[buyer][idx].paid = checked;
       localStorage.setItem('orders', JSON.stringify(orders));
       renderTable();
     }
 
-    // Delete item
     function deleteItem(buyer, idx) {
       orders[buyer].splice(idx, 1);
       if (orders[buyer].length === 0) delete orders[buyer];
@@ -402,7 +406,6 @@
       renderTable();
     }
 
-    // ====================== SUMMARY ======================
     function openSummary() {
       let html = '<table style="width:100%; border-collapse:collapse; font-size:12px;">';
       html += '<tr style="background:#007bff; color:white;"><th>Buyer</th><th>Total (NTD)</th><th>Balance</th><th>Status</th></tr>';
@@ -411,10 +414,8 @@
         let buyerTotal = orders[buyer].reduce((s, o) => s + (o.price + o.charge) * o.quantity, 0);
         let buyerBalance = orders[buyer].reduce((s, o) => s + (o.balance || 0), 0);
         let status = orders[buyer].every(o => o.paid) ? 'Paid' : 'Unpaid';
-
         let rowColor = status === 'Paid' ? 'green' : 'red';
         let balanceStyle = buyerBalance !== 0 ? 'color:red; font-weight:bold;' : '';
-
         html += `<tr style="color:${rowColor};">
           <td>${buyer}</td>
           <td>${buyerTotal}</td>
@@ -429,7 +430,6 @@
     }
     function closeSummary() { document.getElementById('summaryModal').classList.remove('active'); }
 
-    // ====================== ITEM SUMMARY ======================
     function openItemSummary() {
       let items = {};
       for (const buyer in orders) {
@@ -444,7 +444,6 @@
     }
     function closeItemSummary() { document.getElementById('itemSummaryModal').classList.remove('active'); }
 
-    // ====================== ARCHIVE ======================
     function archiveOrders() {
       if (Object.keys(orders).length === 0) return alert('No orders to archive!');
       const date = new Date().toLocaleString();
@@ -474,7 +473,6 @@
     }
     function closeArchive() { document.getElementById('archiveModal').classList.remove('active'); }
 
-    // Updated View Archive
     function viewArchive(date) {
       const ordersData = archivedOrders[date];
       let html = '<table style="width:100%; border-collapse:collapse; font-size:12px;">';
@@ -524,9 +522,7 @@
       openArchive();
     }
 
-    // Initialize
     renderTable();
   </script>
 </body>
 </html>
-
